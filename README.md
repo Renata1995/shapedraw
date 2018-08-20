@@ -2,7 +2,7 @@
 This project grew out of a collaboration on the kiddraw project (https://github.com/brialorelle/kiddraw). A core question underlying that project is: What developmental changes explain age-related variation in children’s ability to produce and comprehend graphical representations (e.g., drawings of  object categories)?
 
 ### Question
-How does the ability to decompose complex visual shapes into parts and recompose these parts into composite shapes develop throughout childhood?
+Here we ask: How does the ability to decompose complex visual shapes into parts and recompose these parts into composite shapes develop throughout childhood?
 
 ### Approach
 To investigate this phenomenon, we plan to take the following strategy:
