@@ -3,6 +3,7 @@ from matplotlib.patches import Ellipse, Polygon, Rectangle, Arc
 import matplotlib as mpl
 import random
 import os
+import numpy as np
 
 exp_dir = os.getcwd()
 stm_dir = os.path.join(exp_dir, 'stimulus')
@@ -12,18 +13,16 @@ half_side = int(img_side / 2) # half of the image side
 orig = (0,0)
 
 num_of_pairs = 50 # the total number of stimuli pairs
-max_snum, min_snum = 3, 6 # the range of possible numbers of primitives in each composite shape
+min_snum, max_snum = 3, 6 # the range of possible numbers of primitives in each composite shape
 max_scale,min_scale = 1.2, 0.8
 max_rotation, min_rotation = 360, 0
 max_move, min_move = int(half_side/4), -int(half_side/4)
-default_width = half_side * 0.8
-default_height = half_side * 0.8
+default_width = half_side * 0.6
+default_height = half_side * 0.6
 lw = 3
 
 for p in range(num_of_pairs):
-    snum = random.randint(max_snum, min_snum)
-    fig = plt.figure()
-
+    snum = random.randint(min_snum, max_snum)
     all_shape = [] # a list that contains all shape paths
 
     for i in range(snum):
@@ -66,31 +65,62 @@ for p in range(num_of_pairs):
 
 
     # create the stimulus in the experimental condition
+    fig = plt.figure(frameon=False)
+    dpi = fig.get_dpi()
+    fig.set_size_inches(img_side/dpi, img_side/dpi)
 
     ax = plt.subplot(111)
     ax.axis('off')
     ax.set_xlim(-half_side, half_side)
     ax.set_ylim(-half_side, half_side)
+    ax.axes.get_xaxis().set_visible(False)  #remove white padding
+    ax.axes.get_yaxis().set_visible(False)
 
     for item in all_shape:
         transform = mpl.transforms.Affine2D().rotate_deg(item['rotation']).translate(item['tx'], item['ty']) + ax.transData
         item['shape'].set_transform(transform)
         ax.add_patch(item['shape'])
 
-    fig.savefig(os.path.join(stm_dir, 'exp_{:03}'.format(p + 1)))
-
+    fig.savefig(os.path.join(stm_dir, '{:03}_exp'.format(p + 1)))
 
     # create the stimulus in the control condition
+    quarter_side = int(half_side / 2)  # 1/4 of the image width
+    control_half_width = int((snum + 1) / 2) * quarter_side
+    padding = img_side/32
 
-    img_width = (snum + 1) / 2 * half_side
-    ax.set_xlim(-img_width, img_width)
-    ax.set_ylim(-half_side, half_side)
+    fig = plt.figure(frameon=False)
+    fig.set_size_inches(control_half_width * 2 / dpi, img_side/ dpi)
+    ax = plt.subplot(111)
+    ax.axis('off')
+
+    ax.set_xlim(-control_half_width-padding, control_half_width+padding)
+    ax.set_ylim(-half_side-padding, half_side+padding)
+    ax.axes.get_xaxis().set_visible(False)  #remove white padding
+    ax.axes.get_yaxis().set_visible(False)
 
     for index, item in enumerate(all_shape):
-        transform = mpl.transforms.Affine2D().translate(item['tx'], item['ty']) + ax.transData  # translate(tx, ty)
-        item['shape'].set_transform(transform)
+        tx, ty = 0, (quarter_side + padding) * np.power(-1, index)
+        center1 = int( (len(all_shape)-1)/2 )
+        center2 = center1 + 1
 
-    fig.savefig(os.path.join(stm_dir, 'control_{:03}'.format(p + 1)))
+        if center1 %2 == 0: # if there are an odd number of pairs of shapes
+            if index > center2:
+                tx = (half_side + padding) * int((index - center2 + 1) / 2)
+            elif index < center1:
+                tx = - (half_side + padding) * int((center1 - index + 1) / 2)
+        else:
+            if index <= center1:
+                tx = - quarter_side - padding / 2 - (half_side + padding) * int((center1 - index) / 2)
+            elif index >= center2:
+                tx = quarter_side + padding / 2 + (half_side + padding) * int((index - center2) / 2)
+
+        item['shape'].axes, item['shape'].figure = None, None # remove shapes from the old axes
+        transform = mpl.transforms.Affine2D().translate(tx, ty) + ax.transData
+        item['shape'].set_transform(transform)
+        ax.add_patch(item['shape'])
+
+    fig.savefig(os.path.join(stm_dir, '{:03}_control'.format(p + 1)), dpi=dpi)
+
 
 
 
