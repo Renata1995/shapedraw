@@ -7,58 +7,79 @@ import numpy as np
 
 exp_dir = os.getcwd()
 stm_dir = os.path.join(exp_dir, 'stimulus')
+if not os.path.exists(stm_dir):
+    os.makedirs(stm_dir)
 
 img_side = 512  # image size is (img_size, img_size)
-half_side = int(img_side / 2) # half of the image side
+half_side, quarter_side = int(img_side / 2), int(img_side / 4) # half of the image side
 orig = (0,0)
 
-num_of_pairs = 50 # the total number of stimuli pairs
-min_snum, max_snum = 3, 6 # the range of possible numbers of primitives in each composite shape
-max_scale,min_scale = 1.2, 0.8
-max_rotation, min_rotation = 360, 0
-max_move, min_move = int(half_side/4), -int(half_side/4)
+num_of_pairs = 32 # 64 # the total number of stimuli pairs
+min_snum, max_snum = 4, 4 # the range of possible numbers of primitives in each composite shape
+min_scale,max_scale = 1, 1 # the scaling of each shape
+min_rotation, max_rotation = 0, 360 # rotation of each shape
+tran_rad = int(img_side / 6)
+tran_angle = range(0, 360, 72)
+
+# default attributes of primitive shapes
 default_width = half_side * 0.6
 default_height = half_side * 0.6
-lw = 3
+move = int(half_side / 8)
+lw = 2.5
+same_shape_list = [True] * num_of_pairs + [False] * num_of_pairs
 
-for p in range(num_of_pairs):
+# generate shapes
+for p, same_shape in enumerate(same_shape_list):
     snum = random.randint(min_snum, max_snum)
     all_shape = [] # a list that contains all shape paths
+    if same_shape:
+        shape_num = [np.random.choice(range(1,9))] * snum
+    else:
+        shape_num = np.random.choice(range(1,9),snum, replace=False)
 
-    for i in range(snum):
+    shape_move = np.random.choice(tran_angle, snum, replace=False)
+
+    for si, shape in enumerate(shape_num):
         # randomly select a shape and its scaling, rotation, and translation parameters
-        shape = random.randint(1,6)
         width, height = int(default_width * random.uniform(min_scale, max_scale)), int(default_height * random.uniform(min_scale, max_scale))
         rotation = random.randint(min_rotation, max_rotation)
-        tx, ty = random.randint(min_move, max_move), random.randint(min_move, max_move)
         half_scalex, half_scaley = int(width / 2), int(height / 2)
+        tx, ty = int(tran_rad * np.cos(np.radians(shape_move[si]))), int(tran_rad * np.sin(np.radians(shape_move[si])))
 
-        if shape == 1:
+        if shape == 1: # ellipse
             shape_path = Ellipse(orig, width, height, fill=False, lw=lw)
 
-        elif shape == 2:
+        elif shape == 2: # rectangle
             upper_left = (int(orig[0]-default_width/2), int(orig[1]-default_height/2))
             shape_path = Rectangle(upper_left, width, height, fill=False, lw=lw)
 
         elif shape == 3: # triangle
             half_scalex, half_scaley = int(width/2), int(height/2)
-            p1, p2 = (orig[0]- half_scalex, orig[1]+ half_scaley), (orig[0]+half_scalex, orig[1]+half_scaley)
-            p3 = (orig[0] + random.randint(0, width),orig[1]-half_scalex)
+            p1, p2 = (orig[0] - half_scalex, -orig[1]-half_scaley), (orig[0]+half_scalex, -orig[1]-half_scaley)
+            p3 = (orig[0],orig[1]+half_scaley)
             shape_path = Polygon([p1, p2, p3], fill=False, lw=lw)
 
         elif shape == 4: #line
-            p1, p2 = (orig[0] - half_scalex, orig[1]-half_scaley), (orig[0] + half_scalex, orig[1] + half_scaley)
+            p1, p2 = (orig[0] - half_scalex, orig[1] - half_scaley), (orig[0] + half_scalex, orig[1] + half_scaley)
             shape_path = Polygon([p1, p2], fill=False, lw=lw)
 
         elif shape == 5: # trapezoid
-            half_width2 = int(default_width * random.uniform(min_scale, max_scale)/2)
-            move = random.randint(min_move, max_move)
-            p1, p2 = (orig[0] - half_scalex, orig[1] + half_scaley), (orig[0] + half_scalex, orig[1] + half_scaley)
-            p3, p4 = (orig[0] + move+ half_width2, orig[1] - half_scalex), (orig[0] + move -half_width2, orig[1] - half_scalex)
+            p1, p2 = (orig[0] - half_scalex - move, orig[1] - half_scaley), (orig[0] + half_scalex + move, orig[1] - half_scaley)
+            p3, p4 = (orig[0] - half_scalex + move, orig[1] + half_scaley), (orig[0] + half_scalex - move, orig[1] + half_scaley)
+            shape_path = Polygon([p1, p2, p4, p3], fill=False, lw=lw)
+
+        elif shape == 6: # diamond
+            p1, p3 = (orig[0], orig[1] + half_scaley + move), (orig[0], orig[1] - half_scaley - move)
+            p2, p4 = (orig[0] - half_scalex, orig[1]), (orig[0] + half_scalex, orig[1])
             shape_path = Polygon([p1, p2, p3, p4], fill=False, lw=lw)
 
-        elif shape == 6:
-            degree = random.randint(60, 270)
+        elif shape == 7: # rectangle
+            width += (move * 2)
+            upper_left = (int(orig[0]-width/2), int(orig[1]-height/2))
+            shape_path = Rectangle(upper_left, width, height, fill=False, lw=lw)
+
+        elif shape == 8: # arc
+            degree = random.randint(180, 180)
             shape_path = Arc(orig, width, height, theta1=0, theta2=degree, fill=False, lw=lw)
 
         all_shape.append({'shape': shape_path, 'rotation':rotation, 'tx':tx, 'ty':ty})
@@ -84,7 +105,6 @@ for p in range(num_of_pairs):
     fig.savefig(os.path.join(stm_dir, '{:03}_exp'.format(p + 1)))
 
     # create the stimulus in the control condition
-    quarter_side = int(half_side / 2)  # 1/4 of the image width
     control_half_width = int((snum + 1) / 2) * quarter_side
     padding = img_side/32
 
