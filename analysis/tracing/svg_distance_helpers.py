@@ -1170,15 +1170,18 @@ def shape_error_mse(img_ref, draw_pixels, end_index):
     :return:
     """
     error = torch.tensor(0.0, dtype=torch.float, requires_grad=True)
-
+    
     # thresholding
     threshold = nn.Hardtanh(0, end_index) # change everything smaller than 0 to 0 and larger than end_index to end_index
-    cropped_index = torch.unique(threshold(draw_pixels)).type(torch.long)
+    cropped_index = torch.unique(threshold(draw_pixels)).type(torch.long).requires_grad_()
+    #print cropped_index, cropped_index.requires_grad
+
     # only keep unique values. remove extra zeros and end_index
     # index numbers become floats after transformation. change them into integers
 
     # index selection
-    ref_select = torch.index_select(img_ref, 0, cropped_index) # get color values on img_ref with overlapping indices
+    ref_select = torch.index_select(img_ref, 0, cropped_index).requires_grad_() # get color values on img_ref with overlapping indices
+    #print ref_select, ref_select.requires_grad
     error = torch.mean(ref_select)
 
     return error
