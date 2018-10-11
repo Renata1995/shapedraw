@@ -1135,7 +1135,7 @@ def minimize_shape_error(img_ref, img_draw):
     # init model
     model = LinearTransform(2)  # weight 2 x 2   bias 1 x 2
 
-    lr = 0.001
+    lr = 0.01
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
     num_train_steps = 1000
@@ -1152,6 +1152,8 @@ def minimize_shape_error(img_ref, img_draw):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        print 'model param', model.transform.weight, model.transform.bias
+        print loss
 
     if j%100==0:
         print('epoch {}, loss {}'.format(epoch, loss.data))
@@ -1173,7 +1175,8 @@ def shape_error_mse(img_ref, draw_pixels, end_index):
     
     # thresholding
     threshold = nn.Hardtanh(0, end_index) # change everything smaller than 0 to 0 and larger than end_index to end_index
-    cropped_index = torch.unique(threshold(draw_pixels)).type(torch.long).requires_grad_()
+    cropped_index = torch.unique(threshold(draw_pixels)).type(torch.long)
+    print 'cropped', cropped_index
     #print cropped_index, cropped_index.requires_grad
 
     # only keep unique values. remove extra zeros and end_index
