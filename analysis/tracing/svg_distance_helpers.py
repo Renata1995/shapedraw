@@ -979,9 +979,11 @@ class LinearTransform(torch.nn.Module):
     def __init__(self, size):
         super(LinearTransform, self).__init__()
         self.transform = torch.nn.Linear(size, size, bias=True)  # two in and two out
+      
         # init the model with the identity transformation matrix
         self.transform.weight = torch.nn.Parameter(torch.eye(size))
         self.transform.bias = torch.nn.Parameter(torch.zeros(size))
+        
 
     def forward(self, x):
         y_pred = self.transform(x)
@@ -1129,8 +1131,65 @@ def minimize_shape_error(img_ref, img_draw):
     end_index_1d = num_rows * num_cols - 1 # the unique id of the last pixel in both ref and draw
 
     draw_pixels = find_black_pixels(img_draw) # a list of pixels that are black  2 x k
-    x_data = Variable(torch.tensor(draw_pixels, dtype=torch.float, ))
-    y_data = Variable(torch.tensor(img_ref, dtype=torch.float).view(-1)) # 1 x end_index_1d.
+    x_data = Variable(torch.tensor(draw_pixels, dtype=torch.float,requires_grad=True))
+    print 'x_data', x_data
+    print 'init_x_1d', pixel_list_to_1d(x_data, num_cols)
+    y_data = Variable(torch.tensor(img_ref, dtype=torch.float, requires_grad=True).view(-1)) # 1 x end_index_1d.
+
+    # init model
+    model = LinearTransform(2)  # weight 2 x 2   bias 1 x 2
+
+    lr = 10
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr)
+
+    num_train_steps = 1000
+
+    for j,epoch in enumerate(range(num_train_steps)):
+        x_prime = model(x_data) # 2 x k
+        print 'x_prime', x_prime
+        x_prime_1d = pixel_list_to_1d(x_prime, num_cols) # 1 x 2k
+        print 'x_prime_1d', x_prime_1d
+
+        # Compute and print loss
+        loss = shape_error_mse(y_data, x_prime_1d, end_index_1d)
+        print 'loss.grad1', loss.grad
+
+        # Zero gradients, perform a backward pass,
+        # and update the weights.
+        optimizer.zero_grad()
+        loss.backward()
+        print 'loss.grad', loss.grad
+        optimizer.step()
+        #print 'model param', model.transform.weight, model.transform.bias
+        
+        for f in model.parameters():
+            print('data is')
+            print(f.data)
+            print('grad is')
+            print(f.grad)
+
+    if j%100==0:
+        print('epoch {}, loss {}'.format(epoch, loss.data))
+
+    final_draw = model(x_data).detach().numpy()
+
+    return loss, final_draw, model.transform.weight, model.transform.bias
+
+def minimize_error_soft_index(img_ref, img_draw):
+    """
+    find a single transformation matrix that minimizes the shape error between img_ref and img_draw
+    :param img_ref: a n x n array
+    :param img_draw: a n x n array
+    :return:
+    """
+    num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
+    w_vector = torch.arange(num_cols).float()
+    h_vector = torch.arange(num_rows).float()
+    power_factor = 50
+
+    draw_pixels = find_black_pixels(img_draw) # a list of pixels that are black  2 x k
+    x_data = Variable(torch.tensor(draw_pixels, dtype=torch.float,requires_grad=True))
+    y_data = Variable(torch.tensor(img_ref, dtype=torch.float, requires_grad=True)) # 1 x end_index_1d.
 
     # init model
     model = LinearTransform(2)  # weight 2 x 2   bias 1 x 2
@@ -1139,30 +1198,55 @@ def minimize_shape_error(img_ref, img_draw):
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
     num_train_steps = 1000
+    print 'x', x_data
 
     for j,epoch in enumerate(range(num_train_steps)):
         x_prime = model(x_data) # 2 x k
-        x_prime_1d = pixel_list_to_1d(x_prime, num_cols) # 1 x 2k
-
-        # Compute and print loss
-        loss = shape_error_mse(y_data, x_prime_1d, end_index_1d)
+        print 'x_prime', x_prime
 
         # Zero gradients, perform a backward pass,
         # and update the weights.
+        loss,product = shape_mse(y_data, x_prime)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        print 'model param', model.transform.weight, model.transform.bias
-        print loss
-
-    if j%100==0:
-        print('epoch {}, loss {}'.format(epoch, loss.data))
-
-    final_draw = model(x_data).detach().numpy()
-
-    return loss, final_draw, model.transform.weight, model.transform.bias
     
 
+        if j%100==0:
+            print('epoch {}, loss {}'.format(epoch, loss.data))
+
+    final_draw = model(x_data)
+
+    return loss, final_draw, product, model.transform.weight, model.transform.bias
+    
+def shape_mse(img_ref, x_prime):
+    num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
+    w_vector = torch.arange(num_cols).float()
+    h_vector = torch.arange(num_rows).float()
+    power_factor = 20
+    
+    # construct 
+    w_index_k = w_vector.repeat(x_prime.size()[0], 1)   # k x n  matrix stores 1 to n index
+    w_xprime_k = x_prime[:,1].unsqueeze(1).repeat(1, w_vector.size()[0])  # k x n  
+    # matrix stores repetitions of x value of black pixels
+    w_output = 1.0/ (1.0 + ( (w_index_k - w_xprime_k).abs() + 0.5 ).pow(power_factor)  ) # k x n 
+    #print 'w',w_output
+
+    h_index_k = h_vector.repeat(x_prime.size()[0], 1)  # k x n
+    h_xprime_k = x_prime[:,0].unsqueeze(1).repeat(1, h_vector.size()[0]) # k x n
+    h_output = 1.0/ (1.0 + ( (h_index_k - h_xprime_k).abs() + 0.5 ).pow(power_factor)  ) # k x n
+    #print 'h', h_output.t()
+
+    product = torch.mm(h_output.t(), w_output)  # n x n
+    print 'img_draw after transformation', product.long()
+    
+    loss = torch.sum((img_ref - product) ** 2)
+    print 'loss', loss
+    
+    return loss, product
+    
+    
+    
 def shape_error_mse(img_ref, draw_pixels, end_index):
     """
     Calculate shape MSE error when a drawing and a reference shape are given
@@ -1171,21 +1255,24 @@ def shape_error_mse(img_ref, draw_pixels, end_index):
     :param end_index + 1: defines the total number of pixels in both reference and drawing
     :return:
     """
-    error = torch.tensor(0.0, dtype=torch.float, requires_grad=True)
+    error = Variable(torch.tensor(0.0, dtype=torch.float, requires_grad=True))
     
     # thresholding
     threshold = nn.Hardtanh(0, end_index) # change everything smaller than 0 to 0 and larger than end_index to end_index
-    cropped_index = torch.unique(threshold(draw_pixels)).type(torch.long)
+    cropped_index = threshold(draw_pixels)
+    print 'crop before converting to long', cropped_index.grad
+    
+    cropped_index = torch.unique(cropped_index.type(torch.long)) # torch.unique is removed
     print 'cropped', cropped_index
-    #print cropped_index, cropped_index.requires_grad
 
     # only keep unique values. remove extra zeros and end_index
     # index numbers become floats after transformation. change them into integers
 
     # index selection
     ref_select = torch.index_select(img_ref, 0, cropped_index).requires_grad_() # get color values on img_ref with overlapping indices
-    #print ref_select, ref_select.requires_grad
-    error = torch.mean(ref_select)
+    error = 1.0-torch.mean(ref_select)
+    print 'err grad', error.grad
+    print 'err', error
 
     return error
 
@@ -1298,5 +1385,5 @@ def get_transformations(weight, bias):
 
 
 def pixel_list_to_1d(pixel_list, num_col):
-    return torch.tensor([p[0]*num_col+p[1] for p in pixel_list], dtype=torch.float, requires_grad=True)
+    return torch.tensor([round((p[0]*num_col+p[1])) for p in pixel_list], dtype=torch.float, requires_grad=True)
 
