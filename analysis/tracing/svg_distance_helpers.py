@@ -1211,7 +1211,8 @@ def minimize_error_soft_index(img_ref, img_draw):
         optimizer.step()
     
         if j%10==0:
-            print('epoch {}, loss {}'.format(epoch, loss.data.numpy()))
+            print('step: {} of {} | loss: {} | weights: {} '.format(epoch, num_train_steps, loss.data.numpy(), model.transform.weight.data.numpy()))
+            
 
     final_draw = model(x_data)
 
@@ -1221,7 +1222,7 @@ def shape_mse(img_ref, x_prime):
     num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
     w_vector = torch.arange(num_cols).float()
     h_vector = torch.arange(num_rows).float()
-    power_factor = 3
+    power_factor = 5
     
     # construct 
     w_index_k = w_vector.repeat(x_prime.size()[0], 1)   # k x n  matrix stores 1 to n index
@@ -1235,7 +1236,7 @@ def shape_mse(img_ref, x_prime):
 
     # render transformed tracing to image size
     product = torch.mm(h_output.t(), w_output)  # n x n
-    _product = F.log_softmax(product.view(-1))
+    _product = F.log_softmax(product.view(-1),dim=0)
     _img_ref = F.softmax(img_ref.view(-1))
                          
     # define loss function
