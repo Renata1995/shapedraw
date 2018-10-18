@@ -1185,24 +1185,24 @@ def minimize_error_soft_index(img_ref, img_draw):
     num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
     w_vector = torch.arange(num_cols).float()
     h_vector = torch.arange(num_rows).float()
-    power_factor = 50
 
     draw_pixels = find_black_pixels(img_draw) # a list of pixels that are black  2 x k
     x_data = Variable(torch.tensor(draw_pixels, dtype=torch.float,requires_grad=True))
-    y_data = Variable(torch.tensor(img_ref, dtype=torch.float, requires_grad=True)) # 1 x end_index_1d.
+    y_data = Variable(torch.tensor(img_ref, dtype=torch.float, requires_grad=True)) 
 
     # init model
     model = LinearTransform(2)  # weight 2 x 2   bias 1 x 2
 
-    lr = 0.01
+    lr = 0.1
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
     num_train_steps = 1000
-    print 'x', x_data
+    #print 'x', x_data
 
     for j,epoch in enumerate(range(num_train_steps)):
+        print "weight bias", model.transform.weight, model.transform.bias
         x_prime = model(x_data) # 2 x k
-        print 'x_prime', x_prime
+        #print 'x_prime', x_prime
 
         # Zero gradients, perform a backward pass,
         # and update the weights.
@@ -1212,12 +1212,12 @@ def minimize_error_soft_index(img_ref, img_draw):
         optimizer.step()
     
 
-        if j%100==0:
-            print('epoch {}, loss {}'.format(epoch, loss.data))
+#         if j%100==0:
+#             print('epoch {}, loss {}'.format(epoch, loss.data))
 
     final_draw = model(x_data)
 
-    return loss, final_draw, product, model.transform.weight, model.transform.bias
+    return loss, final_draw.long(), product, model.transform.weight, model.transform.bias
     
 def shape_mse(img_ref, x_prime):
     num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
@@ -1238,10 +1238,18 @@ def shape_mse(img_ref, x_prime):
     #print 'h', h_output.t()
 
     product = torch.mm(h_output.t(), w_output)  # n x n
-    print 'img_draw after transformation', product.long()
+    # print find_black_pixels(product)
+    #print 'img_draw after transformation', product
     
-    loss = torch.sum((img_ref - product) ** 2)
-    print 'loss', loss
+    #loss = torch.sum((img_ref - product) ** 2)
+    #cel = nn.CrossEntropyLoss()
+    kl = nn.KLDivLoss()
+#     print "product flat", product.view(-1)
+#     print "ref flat", img_ref.view(-1)
+    #loss = kl(product.view(-1), img_ref.view(-1)) *100
+    loss = kl(product, img_ref)
+    #loss = cel(torch.tensor([0,1]).long(), torch.tensor([1,1]))
+    print 'loss', loss.data
     
     return loss, product
     
