@@ -982,7 +982,7 @@ class LinearTransform(torch.nn.Module):
       
         # init the model with the identity transformation matrix
         self.transform.weight = torch.nn.Parameter(torch.eye(size))
-        self.transform.bias = torch.nn.Parameter(torch.zeros(size))
+        self.transform.bias = torch.nn.Parameter(torch.tensor([-2.0,0.0]))
         
 
     def forward(self, x):
@@ -1119,62 +1119,6 @@ def multistroke_to_one(Verts, Codes):
     return _Verts,_Codes
 
 
-
-def minimize_shape_error(img_ref, img_draw):
-    """
-    find a single matrix that minimizes the shape error between img_ref and img_draw
-    :param img_ref: a n x n array
-    :param img_draw: a n x n array
-    :return:
-    """
-    num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
-    end_index_1d = num_rows * num_cols - 1 # the unique id of the last pixel in both ref and draw
-
-    draw_pixels = find_black_pixels(img_draw) # a list of pixels that are black  2 x k
-    x_data = Variable(torch.tensor(draw_pixels, dtype=torch.float,requires_grad=True))
-    print 'x_data', x_data
-    print 'init_x_1d', pixel_list_to_1d(x_data, num_cols)
-    y_data = Variable(torch.tensor(img_ref, dtype=torch.float, requires_grad=True).view(-1)) # 1 x end_index_1d.
-
-    # init model
-    model = LinearTransform(2)  # weight 2 x 2   bias 1 x 2
-
-    lr = 10
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr)
-
-    num_train_steps = 1000
-
-    for j,epoch in enumerate(range(num_train_steps)):
-        x_prime = model(x_data) # 2 x k
-        print 'x_prime', x_prime
-        x_prime_1d = pixel_list_to_1d(x_prime, num_cols) # 1 x 2k
-        print 'x_prime_1d', x_prime_1d
-
-        # Compute and print loss
-        loss = shape_error_mse(y_data, x_prime_1d, end_index_1d)
-        print 'loss.grad1', loss.grad
-
-        # Zero gradients, perform a backward pass,
-        # and update the weights.
-        optimizer.zero_grad()
-        loss.backward()
-        print 'loss.grad', loss.grad
-        optimizer.step()
-        #print 'model param', model.transform.weight, model.transform.bias
-        
-        for f in model.parameters():
-            print('data is')
-            print(f.data)
-            print('grad is')
-            print(f.grad)
-
-    if j%100==0:
-        print('epoch {}, loss {}'.format(epoch, loss.data))
-
-    final_draw = model(x_data).detach().numpy()
-
-    return loss, final_draw, model.transform.weight, model.transform.bias
-
 def minimize_error_soft_index(img_ref, img_draw):
     """
     find a single transformation matrix that minimizes the shape error between img_ref and img_draw
@@ -1182,9 +1126,6 @@ def minimize_error_soft_index(img_ref, img_draw):
     :param img_draw: a n x n array
     :return:
     """
-    num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
-    w_vector = torch.arange(num_cols).float()
-    h_vector = torch.arange(num_rows).float()
 
     draw_pixels = find_black_pixels(img_draw) # a list of pixels that are black  2 x k
     x_data = Variable(torch.tensor(draw_pixels, dtype=torch.float,requires_grad=True))
@@ -1197,35 +1138,33 @@ def minimize_error_soft_index(img_ref, img_draw):
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
     num_train_steps = 1000
-    #print 'x', x_data
 
     for j,epoch in enumerate(range(num_train_steps)):
-        print "weight bias", model.transform.weight, model.transform.bias
         x_prime = model(x_data) # 2 x k
-        #print 'x_prime', x_prime
 
         # Zero gradients, perform a backward pass,
         # and update the weights.
-        loss,product = shape_mse(y_data, x_prime)
+        loss,product = shape_cat(y_data, x_prime)
+        # print 'loss', loss
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    
 
-#         if j%100==0:
-#             print('epoch {}, loss {}'.format(epoch, loss.data))
+
+        if j%100==0:
+            print('epoch {}, loss {}'.format(epoch, loss.data))
 
     final_draw = model(x_data)
 
-    return loss, final_draw.long(), product, model.transform.weight, model.transform.bias
+    return loss, final_draw, product, model.transform.weight, model.transform.bias
+
+def shape_cat(img_ref, x_prime):
+    num_rows, num_cols = torch.tensor(img_ref.shape[0]), torch.tensor(img_ref.shape[1])
     
-def shape_mse(img_ref, x_prime):
-    num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
     w_vector = torch.arange(num_cols).float()
     h_vector = torch.arange(num_rows).float()
-    power_factor = 20
+    power_factor = 5
     
-    # construct 
     w_index_k = w_vector.repeat(x_prime.size()[0], 1)   # k x n  matrix stores 1 to n index
     w_xprime_k = x_prime[:,1].unsqueeze(1).repeat(1, w_vector.size()[0])  # k x n  
     # matrix stores repetitions of x value of black pixels
@@ -1238,20 +1177,76 @@ def shape_mse(img_ref, x_prime):
     #print 'h', h_output.t()
 
     product = torch.mm(h_output.t(), w_output)  # n x n
-    # print find_black_pixels(product)
-    #print 'img_draw after transformation', product
+#     print 'product infor', len(find_black_pixels(product.long()))
+#     print 'img_draw after transformation', torch.round(product)
+
     
-    #loss = torch.sum((img_ref - product) ** 2)
     #cel = nn.CrossEntropyLoss()
-    kl = nn.KLDivLoss()
+    kl = nn.KLDivLoss(size_average=True)
+#     bce = nn.BCELoss()
+    sig = nn.Sigmoid()
 #     print "product flat", product.view(-1)
 #     print "ref flat", img_ref.view(-1)
-    #loss = kl(product.view(-1), img_ref.view(-1)) *100
-    loss = kl(product, img_ref)
-    #loss = cel(torch.tensor([0,1]).long(), torch.tensor([1,1]))
-    print 'loss', loss.data
+    loss_x = nn.functional.softmax(product.view(-1), 0)
+    loss_y = nn.functional.softmax(img_ref.view(-1), 0)
+    #loss = kl(product, img_ref) *1000000
     
-    return loss, product
+    loss = kl(sig(product.view(-1)), img_ref.view(-1)) * 10
+    #loss = cel(torch.tensor([0,1]).long(), torch.tensor([1,1]))
+    #print 'loss', loss.data
+    
+    return loss, torch.round(product)
+    
+def shape_mse(img_ref, x_prime):
+    ref_rows, ref_cols = torch.tensor(img_ref.shape[0])-1, torch.tensor(img_ref.shape[1])-1
+    
+    num_rows_max = torch.max(torch.max(x_prime[:,0]).long(), ref_rows)
+    num_cols_max = torch.max(torch.max(x_prime[:,1]).long(), ref_cols)
+    
+    num_rows_min = torch.min(torch.min(x_prime[:,0]).long(), torch.tensor(0))
+    num_cols_min = torch.min(torch.min(x_prime[:,1]).long(), torch.tensor(0))
+    
+    w_vector = torch.arange(num_cols_min, num_cols_max + 1).float()
+    h_vector = torch.arange(num_rows_min, num_rows_max + 1).float()
+    power_factor = 5
+    
+    w_index_k = w_vector.repeat(x_prime.size()[0], 1)   # k x n  matrix stores 1 to n index
+    w_xprime_k = x_prime[:,1].unsqueeze(1).repeat(1, w_vector.size()[0])  # k x n  
+    # matrix stores repetitions of x value of black pixels
+    w_output = 1.0/ (1.0 + ( (w_index_k - w_xprime_k).abs() + 0.5 ).pow(power_factor)  ) # k x n 
+    #print 'w',w_output
+
+    h_index_k = h_vector.repeat(x_prime.size()[0], 1)  # k x n
+    h_xprime_k = x_prime[:,0].unsqueeze(1).repeat(1, h_vector.size()[0]) # k x n
+    h_output = 1.0/ (1.0 + ( (h_index_k - h_xprime_k).abs() + 0.5 ).pow(power_factor)  ) # k x n
+    #print 'h', h_output.t()
+
+    product = torch.mm(h_output.t(), w_output)  # n x n
+#     print 'product infor', len(find_black_pixels(product.long()))
+#     print 'img_draw after transformation', torch.round(product)
+
+    pad_ref = (0-num_cols_min, num_cols_max - ref_cols, 0-num_rows_min, num_rows_max-ref_rows)
+    ref_change = nn.functional.pad(img_ref, pad_ref,'constant',0)
+    # print 'pad ref', ref_change
+
+    mse = nn.MSELoss(size_average=False)
+    loss = mse(product, ref_change)
+    #loss = torch.sum((product - ref_change) ** 2)
+    #cel = nn.CrossEntropyLoss()
+    #kl = nn.KLDivLoss(size_average=True)
+#     bce = nn.BCELoss()
+#     sig = nn.Sigmoid()
+#     print "product flat", product.view(-1)
+#     print "ref flat", img_ref.view(-1)
+#     loss_x = nn.functional.log_softmax(product.view(-1), 0)
+#     loss_y = nn.functional.softmax(img_ref.view(-1), 0)
+#     loss = kl(product, img_ref) *1000000
+    
+#     loss = bce(sig(product.view(-1)), img_ref.view(-1)) * 10
+    #loss = cel(torch.tensor([0,1]).long(), torch.tensor([1,1]))
+    #print 'loss', loss.data
+    
+    return loss, torch.round(product)
     
     
     
