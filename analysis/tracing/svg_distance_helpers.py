@@ -19,6 +19,7 @@ from svgpathtools import parse_path
 import torch
 from torch.autograd import Variable
 import torch.nn as nn
+import torch.nn.functional as F
 
 """
 Parsing and rendering svg data 
@@ -824,7 +825,7 @@ def minimize_transformation_err(tra_verts, ref_verts):
         cor_verts = get_corresponding_verts(new_tra, ref_verts)
         y_data = Variable(cor_verts)
 
-        if j%100==0:
+        if j%50==0:
             print('epoch {}, loss {}'.format(epoch, loss.data))
 
     final_tra_verts = model(x_data).detach().numpy()
@@ -1193,7 +1194,7 @@ def minimize_error_soft_index(img_ref, img_draw):
     # init model
     model = LinearTransform(2)  # weight 2 x 2   bias 1 x 2
 
-    lr = 0.1
+    lr = 0.001
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
     num_train_steps = 1000
@@ -1209,7 +1210,7 @@ def minimize_error_soft_index(img_ref, img_draw):
         loss.backward()
         optimizer.step()
     
-        if j%100==0:
+        if j%10==0:
             print('epoch {}, loss {}'.format(epoch, loss.data.numpy()))
 
     final_draw = model(x_data)
@@ -1220,7 +1221,7 @@ def shape_mse(img_ref, x_prime):
     num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
     w_vector = torch.arange(num_cols).float()
     h_vector = torch.arange(num_rows).float()
-    power_factor = 10
+    power_factor = 3
     
     # construct 
     w_index_k = w_vector.repeat(x_prime.size()[0], 1)   # k x n  matrix stores 1 to n index
@@ -1234,11 +1235,14 @@ def shape_mse(img_ref, x_prime):
 
     # render transformed tracing to image size
     product = torch.mm(h_output.t(), w_output)  # n x n
-    
+    _product = F.log_softmax(product.view(-1))
+    _img_ref = F.softmax(img_ref.view(-1))
+                         
     # define loss function
-    loss = nn.functional.kl_div(product, img_ref) 
+    loss = torch.nn.KLDivLoss(size_average=False)
+    l = loss(_product, _img_ref) * 100
        
-    return loss, product
+    return l, product
     
     
     
