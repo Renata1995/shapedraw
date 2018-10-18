@@ -3,7 +3,7 @@ import os
 import numpy as np
 from numpy import *
 import PIL
-from PIL import Image
+from PIL import Image, ImageOps
 import base64
 import matplotlib
 from matplotlib import pylab, mlab, pyplot
@@ -1197,12 +1197,10 @@ def minimize_error_soft_index(img_ref, img_draw):
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 
     num_train_steps = 1000
-    #print 'x', x_data
 
     for j,epoch in enumerate(range(num_train_steps)):
-        print "weight bias", model.transform.weight, model.transform.bias
+        #print "weight bias", model.transform.weight, model.transform.bias
         x_prime = model(x_data) # 2 x k
-        #print 'x_prime', x_prime
 
         # Zero gradients, perform a backward pass,
         # and update the weights.
@@ -1211,9 +1209,8 @@ def minimize_error_soft_index(img_ref, img_draw):
         loss.backward()
         optimizer.step()
     
-
-#         if j%100==0:
-#             print('epoch {}, loss {}'.format(epoch, loss.data))
+        if j%100==0:
+            print('epoch {}, loss {}'.format(epoch, loss.data.numpy()))
 
     final_draw = model(x_data)
 
@@ -1223,34 +1220,24 @@ def shape_mse(img_ref, x_prime):
     num_rows, num_cols = img_ref.shape[0], img_ref.shape[1]
     w_vector = torch.arange(num_cols).float()
     h_vector = torch.arange(num_rows).float()
-    power_factor = 20
+    power_factor = 10
     
     # construct 
     w_index_k = w_vector.repeat(x_prime.size()[0], 1)   # k x n  matrix stores 1 to n index
     w_xprime_k = x_prime[:,1].unsqueeze(1).repeat(1, w_vector.size()[0])  # k x n  
     # matrix stores repetitions of x value of black pixels
     w_output = 1.0/ (1.0 + ( (w_index_k - w_xprime_k).abs() + 0.5 ).pow(power_factor)  ) # k x n 
-    #print 'w',w_output
 
     h_index_k = h_vector.repeat(x_prime.size()[0], 1)  # k x n
     h_xprime_k = x_prime[:,0].unsqueeze(1).repeat(1, h_vector.size()[0]) # k x n
     h_output = 1.0/ (1.0 + ( (h_index_k - h_xprime_k).abs() + 0.5 ).pow(power_factor)  ) # k x n
-    #print 'h', h_output.t()
 
+    # render transformed tracing to image size
     product = torch.mm(h_output.t(), w_output)  # n x n
-    # print find_black_pixels(product)
-    #print 'img_draw after transformation', product
     
-    #loss = torch.sum((img_ref - product) ** 2)
-    #cel = nn.CrossEntropyLoss()
-    kl = nn.KLDivLoss()
-#     print "product flat", product.view(-1)
-#     print "ref flat", img_ref.view(-1)
-    #loss = kl(product.view(-1), img_ref.view(-1)) *100
-    loss = kl(product, img_ref)
-    #loss = cel(torch.tensor([0,1]).long(), torch.tensor([1,1]))
-    print 'loss', loss.data
-    
+    # define loss function
+    loss = nn.functional.kl_div(product, img_ref) 
+       
     return loss, product
     
     
@@ -1329,6 +1316,18 @@ def shape_error(img_ref, img_draw, rows=432, cols=432):
 
     return f1, mse
 
+
+
+def load_preprocess_tracing(fpath, threshold = 150, img_size = 100, invert=True):
+    img_draw = Image.open(fpath).convert('L')
+    img_draw = img_draw.resize((img_size,img_size),Image.ANTIALIAS)
+    if invert:
+        img_draw = ImageOps.invert(img_draw)
+    img_draw_array = np.asarray(img_draw)
+    img_draw_array_thresholded = np.where(img_draw_array > threshold, 255, 0)
+    return img_draw_array_thresholded.astype('uint8')
+
+#############
 
 def white_color_to_num(img):
     new_img = np.zeros((len(img), len(img[0])))
