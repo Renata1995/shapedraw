@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 exp_dir = os.getcwd()
-stm_dir = os.path.join(exp_dir, 'stimulus')
+stm_dir = os.path.join(exp_dir, 'stimulus_02')
 if not os.path.exists(stm_dir):
     os.makedirs(stm_dir)
 
@@ -15,7 +15,7 @@ half_side, quarter_side = int(img_side / 2), int(img_side / 4) # half of the ima
 orig = (0,0)
 
 num_of_pairs = 10  # the number of same/diff stimuli pairs
-min_shape_num, max_shape_num = 4, 4
+min_shape_num, max_shape_num = 2, 2
 
 # default attributes of primitive shapes
 default_width = half_side * 0.6
