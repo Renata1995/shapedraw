@@ -102,4 +102,16 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
 .Rproj.user
+
+
+# images
+*.png
+*.jpg
+
+# text
+*.txt
+
+.DS_Store
+

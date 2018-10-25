@@ -86,41 +86,42 @@ def render_and_save(Verts,
 
     verts = Verts[0]
     codes = Codes[0]
+    fig = plt.figure(frameon=False)
+    dpi = fig.get_dpi()
+    fig.set_size_inches(imsize/dpi, imsize/dpi)
+    ax = plt.subplot(111)
+    ax.axis('off')
+    ax.set_xlim(0, canvas_size)
+    ax.set_ylim(0, canvas_size)
+
+    # remove padding for xaxis and y axis
+    ax.axes.get_xaxis().set_visible(False)
+    ax.axes.get_yaxis().set_visible(False)
+    # remove further paddings
+    plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
+                        hspace=0, wspace=0)
+    
     for i, verts in enumerate(Verts):
         codes = Codes[i]
-        fig = plt.figure(figsize=(imsize, imsize), frameon=False)
-        ax = plt.subplot(111)
-        ax.axis('off')
-        ax.set_xlim(0, canvas_size)
-        ax.set_ylim(0, canvas_size)
-
-        # remove padding for xaxis and y axis
-        ax.axes.get_xaxis().set_visible(False)
-        ax.axes.get_yaxis().set_visible(False)
-        # remove further paddings
-        plt.subplots_adjust(top=1, bottom=0, right=1, left=0,
-                            hspace=0, wspace=0)
-
+        
         ### render sketch so far
         if len(verts) > 0:
             path = Path(verts, codes)
             patch = patches.PathPatch(path, facecolor='none', lw=line_width)
             ax.add_patch(patch)
             plt.gca().invert_yaxis()  # y values increase as you go down in image
-        # plt.show()
 
 
-        ## save out as png
-        ## maybe to make it not render every single thing, use plt.ioff
-        if not os.path.exists(out_path):
-            os.makedirs(out_path)
-        fname = '{}_{}_{}_{}.png'.format(session_id, trial_num, category, i)
-        filepath = os.path.join(out_path, fname)
-        print
-        filepath
+    ## save out as png
+    ## maybe to make it not render every single thing, use plt.ioff
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+    fname = '{}.png'.format(category)
+    filepath = os.path.join(out_path, fname)
+    print 'fpath', filepath
 
-        fig.savefig(filepath, bbox_inches='tight', pad_inches=0.0)
-        plt.close(fig)
+    fig.savefig(filepath, bbox_inches='tight', pad_inches=0.0)
+    plt.close(fig)
 
 
 def polyline_pathmaker(lines):
