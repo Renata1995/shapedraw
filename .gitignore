@@ -110,4 +110,4 @@ venv.bak/
 # text
 *.txt
 
-*/.DS_Store
+**/.DS_Store
