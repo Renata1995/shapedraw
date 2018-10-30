@@ -27,7 +27,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import airlab as al
 
 
-def affine_reg(img_draw, img_ref, lr=0.02, iter=200):
+def affine_reg(img_draw, img_ref, lr=0.005, iter=1000):
     # set the used data type
     dtype = th.float32
     # set the device for the computaion to CPU
@@ -78,32 +78,33 @@ def affine_reg(img_draw, img_ref, lr=0.02, iter=200):
     scale = np.abs(param[3] * param[4] - 1)
     final_loss = registration.loss.detach().numpy()
 
-    # print("=================================================================")
-    #
-    # print("Result parameters:")
-    # transformation._print()
-    #
-    # # plot the results
-    # plt.subplot(131)
-    # plt.imshow(fixed_image.numpy(), cmap='gray')
-    # plt.title('Fixed Image')
-    #
-    # plt.subplot(132)
-    # plt.imshow(moving_image.numpy(), cmap='gray')
-    # plt.title('Moving Image')
-    #
-    # plt.subplot(133)
-    # plt.imshow(np.add(fixed_image.numpy(), warped_image.numpy()), cmap='gray')
-    # plt.title('Warped Moving Image')
-    #
-    # plt.show()
+    print("=================================================================")
+
+    print("Result parameters:")
+    transformation._print()
+
+    # plot the results
+    plt.subplot(131)
+    plt.imshow(fixed_image.numpy(), cmap='gray')
+    plt.title('Fixed Image')
+
+    plt.subplot(132)
+    plt.imshow(np.add(fixed_image.numpy(), moving_image.numpy()), cmap='gray')
+    plt.title('Moving Image')
+
+    plt.subplot(133)
+    plt.imshow(np.add(fixed_image.numpy(), warped_image.numpy()), cmap='gray')
+    plt.title('Warped Moving Image')
+
+    plt.show()
 
 
     return init_loss, final_loss, np.abs(param[0]), translate, scale, warped_image
 
-# img_draw = 'test_scale.png'
-# img_ref = 'tracing_ref/this square_ref.png'
-# init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref)
+img_draw = 'test2.png'
+img_ref = 'tracing_ref/this shape_ref.png'
+init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref)
+print init_loss, final_loss
 
 
 # write result images
