@@ -75,20 +75,17 @@ def affine_reg(img_draw, img_ref, lr=0.02, iter=200):
 
     param = transformation.trans_parameters.detach().numpy()
     translate = np.sqrt(np.square(param[1]) + np.square(param[2]))
+    scale = np.abs(param[3] * param[4] - 1)
     final_loss = registration.loss.detach().numpy()
-
-
-    return init_loss, final_loss, np.abs(param[0]), translate, warped_image
 
     # print("=================================================================")
     #
-    # print("Registration done in: ", end - start)
     # print("Result parameters:")
     # transformation._print()
     #
     # # plot the results
     # plt.subplot(131)
-    # plt.imshow(np.add(fixed_image.numpy(),warped_image.numpy()), cmap='gray')
+    # plt.imshow(fixed_image.numpy(), cmap='gray')
     # plt.title('Fixed Image')
     #
     # plt.subplot(132)
@@ -96,12 +93,20 @@ def affine_reg(img_draw, img_ref, lr=0.02, iter=200):
     # plt.title('Moving Image')
     #
     # plt.subplot(133)
-    # plt.imshow(warped_image.numpy(), cmap='gray')
+    # plt.imshow(np.add(fixed_image.numpy(), warped_image.numpy()), cmap='gray')
     # plt.title('Warped Moving Image')
     #
     # plt.show()
 
-    # write result images
-    #sitk.WriteImage(warped_image.itk(), '/tmp/rigid_warped_image.vtk')
-    #sitk.WriteImage(moving_image.itk(), '/tmp/rigid_moving_image.vtk')
-    #sitk.WriteImage(fixed_image.itk(), '/tmp/rigid_fixed_image.vtk')
+
+    return init_loss, final_loss, np.abs(param[0]), translate, scale, warped_image
+
+# img_draw = 'test_scale.png'
+# img_ref = 'tracing_ref/this square_ref.png'
+# init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref)
+
+
+# write result images
+#sitk.WriteImage(warped_image.itk(), '/tmp/rigid_warped_image.vtk')
+#sitk.WriteImage(moving_image.itk(), '/tmp/rigid_moving_image.vtk')
+#sitk.WriteImage(fixed_image.itk(), '/tmp/rigid_fixed_image.vtk')
