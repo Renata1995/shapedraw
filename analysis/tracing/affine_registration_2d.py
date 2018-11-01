@@ -101,9 +101,9 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
 
     return init_loss, final_loss, np.abs(param[0]), translate, scale, warped_image
 
-# img_draw = 'test2.png'
+# img_draw = 'this shape.png'
 # img_ref = 'tracing_ref/this shape_ref.png'
-# init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref)
+# init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref, 'transformed.png')
 # print init_loss, final_loss
 
 

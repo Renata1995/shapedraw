@@ -15,7 +15,8 @@ library(lmerTest)
 
 ```{r}
 d <- read_csv('./photodraw_tracing.csv') %>%
-  mutate(tracing_item = factor(tracing_item, levels = c('this square', 'this shape', 'this circle'))) 
+  mutate(tracing_item = factor(tracing_item, levels = c('this square', 'this shape', 'this circle')), 
+         condition = factor(condition, levels = c('S', 'W', 'P'))) 
   # mutate(age = scale(age, center = TRUE, scale = FALSE),
   #        post_mse = scale(post_mse, center = TRUE, scale = FALSE))
 m1 = lmer(post_mse ~ age + (1 | session_id), data=d)
@@ -53,7 +54,7 @@ d %>%
 
 ```{r}
 d %>%
-  gather(transformation, val, rotate, translate) %>%
+  gather(transformation, val, rotate, translate, scale) %>%
   ggplot(aes(x = age, y = val, color = tracing_item)) +
     geom_point() +
     geom_smooth(method = 'lm') +
@@ -63,3 +64,20 @@ d %>%
     ylim(-0.05, 0.4)
 
 ```
+
+```{r}
+m1 = lmer(correct ~ age + condition + (1 | session_id), data=d)
+m2 = lmer(correct ~ age + condition + (1 | tracing_item) + (1 | session_id), data=d)
+#m3 = lmer(correct ~ age + tracing_item + post_mse + pre_mse + (1 | session_id), data=d)
+#m4 = lmer(correct ~ post_mse + (1 | session_id), data=d)
+anova(m1, m2)
+```
+```{r}
+summary(m4)
+summary(d$correct)
+```
+
+```{r}
+data <- read_csv('./photodraw_tracing.csv')
+```
+
