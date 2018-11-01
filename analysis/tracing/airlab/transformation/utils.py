@@ -26,16 +26,16 @@ def compute_grid(image_size, dtype=th.float32, device='cpu'):
         nx = image_size[0]
         ny = image_size[1]
 
-        x = th.linspace(-1, 1, steps=ny).to(dtype=dtype)
+        x = th.linspace(-1, 1, steps=ny).to(dtype=dtype) # (1, img_size)     value -1 -> 1
         y = th.linspace(-1, 1, steps=nx).to(dtype=dtype)
 
-        x = x.expand(nx, -1)
+        x = x.expand(nx, -1) # (img_size, img_size)  each row: -1 -> 1
         y = y.expand(ny, -1).transpose(0, 1)
 
-        x.unsqueeze_(0).unsqueeze_(3)
+        x.unsqueeze_(0).unsqueeze_(3) # (1, img_size, img_size, 1)
         y.unsqueeze_(0).unsqueeze_(3)
 
-        return th.cat((x, y), 3).to(dtype=dtype, device=device)
+        return th.cat((x, y), 3).to(dtype=dtype, device=device)   # (1, img_size, img_size, 2)
 
     elif(dim == 3):
         nz = image_size[0]

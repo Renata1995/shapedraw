@@ -27,7 +27,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import airlab as al
 
 
-def affine_reg(img_draw, img_ref, lr=0.005, iter=1000):
+def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
     # set the used data type
     dtype = th.float32
     # set the device for the computaion to CPU
@@ -41,10 +41,13 @@ def affine_reg(img_draw, img_ref, lr=0.005, iter=1000):
     itkImg = sitk.ReadImage(img_ref, sitk.sitkFloat32)
     itkImg = sitk.RescaleIntensity(itkImg, 0, 1)
     fixed_image = al.create_tensor_image_from_itk_image(itkImg, dtype=dtype, device=device)
+    fsize = fixed_image.numpy().flatten().size
 
     itkImg = sitk.ReadImage(img_draw, sitk.sitkFloat32)
     itkImg = sitk.RescaleIntensity(itkImg, 0, 1)
     moving_image = al.create_tensor_image_from_itk_image(itkImg, dtype=dtype, device=device)
+
+
 
     # create pairwise registration object
     registration = al.PairwiseRegistration(dtype=dtype, device=device)
@@ -55,8 +58,8 @@ def affine_reg(img_draw, img_ref, lr=0.005, iter=1000):
     registration.set_transformation(transformation)
 
     # choose the Mean Squared Error as image loss
-    image_loss = al.loss.pairwise.MSE(fixed_image, moving_image)
-    init_loss = np.mean(np.square(fixed_image.numpy() - moving_image.numpy()))
+    image_loss = al.loss.pairwise.MSE(fixed_image, moving_image, size_average=False)
+    init_loss = np.sum(np.square(fixed_image.numpy() - moving_image.numpy()))/fsize
 
     registration.set_image_loss([image_loss])
 
@@ -75,36 +78,33 @@ def affine_reg(img_draw, img_ref, lr=0.005, iter=1000):
 
     param = transformation.trans_parameters.detach().numpy()
     translate = np.sqrt(np.square(param[1]) + np.square(param[2]))
-    scale = np.abs(param[3] * param[4] - 1)
-    final_loss = registration.loss.detach().numpy()
+    scale = np.sqrt( ( np.square(param[3]-1) + np.square(param[4] - 1) ) * 0.5  )
+    final_loss = registration.loss.detach().numpy()/fsize
 
-    print("=================================================================")
-
-    print("Result parameters:")
-    transformation._print()
 
     # plot the results
     plt.subplot(131)
     plt.imshow(fixed_image.numpy(), cmap='gray')
-    plt.title('Fixed Image')
+    plt.title('Ref')
 
     plt.subplot(132)
     plt.imshow(np.add(fixed_image.numpy(), moving_image.numpy()), cmap='gray')
-    plt.title('Moving Image')
+    plt.title('Draw')
 
     plt.subplot(133)
     plt.imshow(np.add(fixed_image.numpy(), warped_image.numpy()), cmap='gray')
-    plt.title('Warped Moving Image')
+    plt.title('Tran')
 
-    plt.show()
+    plt.savefig(output_path)
+    plt.close()
 
 
     return init_loss, final_loss, np.abs(param[0]), translate, scale, warped_image
 
-img_draw = 'test2.png'
-img_ref = 'tracing_ref/this shape_ref.png'
-init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref)
-print init_loss, final_loss
+# img_draw = 'test2.png'
+# img_ref = 'tracing_ref/this shape_ref.png'
+# init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref)
+# print init_loss, final_loss
 
 
 # write result images

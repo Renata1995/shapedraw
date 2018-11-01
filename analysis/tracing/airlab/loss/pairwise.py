@@ -86,19 +86,20 @@ class MSE(_PairwiseImageLoss):
         self.warped_moving_image = None
 
     def forward(self, displacement):
+        # input displacement  (img_size, img_size, 2)
+        displacement = self._grid + displacement   # grid + displacement (1, imgs, imgs, 2)
 
-        displacement = self._grid + displacement
+        mask = th.zeros_like(self._fixed_image.image, dtype=th.uint8, device=self._device) # (1,1, imgs, imgs)
 
-        mask = th.zeros_like(self._fixed_image.image, dtype=th.uint8, device=self._device)
         for dim in range(displacement.size()[-1]):
             mask += displacement[..., dim].gt(1) + displacement[..., dim].lt(-1)
+            # collect cells that are greater than 1 or smaller than -1
 
         mask = mask == 0
 
         self.warped_moving_image = F.grid_sample(self._moving_image.image, displacement)
 
-        value = (self.warped_moving_image - self._fixed_image.image).pow(2)
-
+        value = (self.warped_moving_image - self._fixed_image.image).pow(2)  #(1,1,imgs, imgs)
         value = th.masked_select(value, mask)
 
         return self.return_loss(value)
