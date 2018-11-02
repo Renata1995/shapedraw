@@ -48,7 +48,6 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
     moving_image = al.create_tensor_image_from_itk_image(itkImg, dtype=dtype, device=device)
 
 
-
     # create pairwise registration object
     registration = al.PairwiseRegistration(dtype=dtype, device=device)
 
@@ -58,7 +57,7 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
     registration.set_transformation(transformation)
 
     # choose the Mean Squared Error as image loss
-    image_loss = al.loss.pairwise.MSE(fixed_image, moving_image, size_average=False)
+    image_loss = al.loss.pairwise.MSE(fixed_image, moving_image, size_average=True)
     init_loss = np.sum(np.square(fixed_image.numpy() - moving_image.numpy()))/fsize
 
     registration.set_image_loss([image_loss])
@@ -79,7 +78,7 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
     param = transformation.trans_parameters.detach().numpy()
     translate = np.sqrt(np.square(param[1]) + np.square(param[2]))
     scale = np.sqrt( ( np.square(param[3]-1) + np.square(param[4] - 1) ) * 0.5  )
-    final_loss = registration.loss.detach().numpy()/fsize
+    final_loss = registration.loss.detach().numpy()
 
 
     # plot the results
@@ -101,8 +100,8 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
 
     return init_loss, final_loss, np.abs(param[0]), translate, scale, warped_image
 
-# img_draw = 'this shape.png'
-# img_ref = 'tracing_ref/this shape_ref.png'
+# img_draw = 'test3.png'
+# img_ref = 'tracing_ref/this circle_ref.png'
 # init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref, 'transformed.png')
 # print init_loss, final_loss
 

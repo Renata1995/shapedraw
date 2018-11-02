@@ -277,17 +277,107 @@ summary(d$correct)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>Examine how the shape error and spatial error would predict human judgments</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YSA8LSByZWFkX2NzdignLi9waG90b2RyYXdfdHJhY2luZy5jc3YnKVxuYGBgIn0= -->
-<pre class="r"><code>data &lt;- read_csv('./photodraw_tracing.csv')</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShsbWU0KVxucmF0ZXJfZGF0YSA8LSByZWFkLmNzdignLi9waG90b2RyYXdfc3VtbWFyeS5jc3YnKVxubG1fcmF0ZSA9IGxtKGZvcm11bGE9cmF0ZXIxIH4gc3BhdGlhbCArIHBvc3RfbXNlLCBkYXRhPXJhdGVyX2RhdGEpXG5zdW1tYXJ5KGxtX3JhdGUpXG5gYGAifQ== -->
+<pre class="r"><code>library(lme4)
+rater_data &lt;- read.csv('./photodraw_summary.csv')
+lm_rate = lm(formula=rater1 ~ spatial + post_mse, data=rater_data)
+summary(lm_rate)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2dwbG90KHJhdGVyX2RhdGEsIGFlcyhzcGF0aWFsLCByYXRlcjEsIGNvbG9yPXRyYWNpbmdfaXRlbSkpICtcbiAgZ2VvbV9zbW9vdGgobWV0aG9kPVwibG1cIikgK1xuICBnZW9tX3BvaW50KHNpemU9MykgK1xuICB0aGVtZV9idygpICsgXG4gIHhsYWIoXCJzcGF0aWFsIGVycm9yXCIpICtcbiAgeWxhYihcImh1bWFuIGp1ZGdtZW50XCIpICtcbiAgZ2d0aXRsZSgnU3BhdGlhbCBFcnJvciB2cy4gSHVtYW4ganVkZ21lbnQnKVxuYGBgIn0= -->
+<pre class="r"><code>ggplot(rater_data, aes(spatial, rater1, color=tracing_item)) +
+  geom_smooth(method=&quot;lm&quot;) +
+  geom_point(size=3) +
+  theme_bw() + 
+  xlab(&quot;spatial error&quot;) +
+  ylab(&quot;human judgment&quot;) +
+  ggtitle('Spatial Error vs. Human judgment')</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2dwbG90KHJhdGVyX2RhdGEsIGFlcyhwb3N0X21zZSwgcmF0ZXIxLCBjb2xvcj10cmFjaW5nX2l0ZW0pKSArXG4gIGdlb21fc21vb3RoKG1ldGhvZD1cImxtXCIpICtcbiAgZ2VvbV9wb2ludChzaXplPTMpICtcbiAgdGhlbWVfYncoKSArIFxuICB4bGFiKFwic3BhdGlhbCBlcnJvclwiKSArXG4gIHlsYWIoXCJodW1hbiBqdWRnbWVudFwiKSArXG4gIGdndGl0bGUoJ1NwYXRpYWwgRXJyb3IgdnMuIEh1bWFuIGp1ZGdtZW50JylcbmBgYCJ9 -->
+<pre class="r"><code>ggplot(rater_data, aes(post_mse, rater1, color=tracing_item)) +
+  geom_smooth(method=&quot;lm&quot;) +
+  geom_point(size=3) +
+  theme_bw() + 
+  xlab(&quot;spatial error&quot;) +
+  ylab(&quot;human judgment&quot;) +
+  ggtitle('Spatial Error vs. Human judgment')</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShNQVNTKVxucmF0ZXJfZGF0YSA8LSByZWFkLmNzdignLi9waG90b2RyYXdfc3VtbWFyeS5jc3YnKVxucmF0ZXJfZGF0YSRyYXRlcjEgPC0gZmFjdG9yKHJhdGVyX2RhdGEkcmF0ZXIxLCBsZXZlbHMgPSBjKFwiMFwiLCBcIjFcIiwgXCIyXCIsIFwiM1wiLCBcIjRcIiksIG9yZGVyZWQ9VFJVRSlcbnJhdGVyX2RhdGEkcG9zdF9tc2UgPSBzY2FsZShyYXRlcl9kYXRhJHBvc3RfbXNlKVxucmF0ZXJfZGF0YSRzcGF0aWFsID0gc2NhbGUocmF0ZXJfZGF0YSRzcGF0aWFsKVxub3JkX20gPC0gcG9scihyYXRlcjEgfiBzcGF0aWFsICsgcG9zdF9tc2UsIHJhdGVyX2RhdGEsIEhlc3M9VFJVRSlcbnN1bW1hcnkob3JkX20pXG5gYGAifQ== -->
+<pre class="r"><code>library(MASS)
+rater_data &lt;- read.csv('./photodraw_summary.csv')
+rater_data$rater1 &lt;- factor(rater_data$rater1, levels = c(&quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;), ordered=TRUE)
+rater_data$post_mse = scale(rater_data$post_mse)
+rater_data$spatial = scale(rater_data$spatial)
+ord_m &lt;- polr(rater1 ~ spatial + post_mse, rater_data, Hess=TRUE)
+summary(ord_m)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ2FsbDpcbnBvbHIoZm9ybXVsYSA9IHJhdGVyMSB+IHNwYXRpYWwgKyBwb3N0X21zZSwgZGF0YSA9IHJhdGVyX2RhdGEsIFxuICAgIEhlc3MgPSBUUlVFKVxuXG5Db2VmZmljaWVudHM6XG4gICAgICAgICAgVmFsdWUgU3RkLiBFcnJvciB0IHZhbHVlXG5zcGF0aWFsICAtMS4zOTYgICAgIDAuMjM4OCAgLTUuODQ2XG5wb3N0X21zZSAtMS42MTMgICAgIDAuMjIwOSAgLTcuMzAyXG5cbkludGVyY2VwdHM6XG4gICAgVmFsdWUgICBTdGQuIEVycm9yIHQgdmFsdWVcbjB8MSAtNS4yMzEzICAwLjYyMzQgICAgLTguMzkxMFxuMXwyIC0xLjEwMTYgIDAuMjM3NyAgICAtNC42MzQ4XG4yfDMgIDEuOTA3MiAgMC4yNjMyICAgICA3LjI0NThcbjN8NCAgNi44ODEzICAxLjA1NjcgICAgIDYuNTExOVxuXG5SZXNpZHVhbCBEZXZpYW5jZTogMjY5Ljc2ODQgXG5BSUM6IDI4MS43Njg0IFxuIn0= -->
+<pre><code>Call:
+polr(formula = rater1 ~ spatial + post_mse, data = rater_data, 
+    Hess = TRUE)
+
+Coefficients:
+          Value Std. Error t value
+spatial  -1.396     0.2388  -5.846
+post_mse -1.613     0.2209  -7.302
+
+Intercepts:
+    Value   Std. Error t value
+0|1 -5.2313  0.6234    -8.3910
+1|2 -1.1016  0.2377    -4.6348
+2|3  1.9072  0.2632     7.2458
+3|4  6.8813  1.0567     6.5119
+
+Residual Deviance: 269.7684 
+AIC: 281.7684 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3RhYmxlIDwtIGNvZWYoc3VtbWFyeShvcmRfbSkpXG5wIDwtIHBub3JtKGFicyhjdGFibGVbLCBcInQgdmFsdWVcIl0pLCBsb3dlci50YWlsID0gRkFMU0UpICogMlxuKGN0YWJsZSA8LSBjYmluZChjdGFibGUsIFwicCB2YWx1ZVwiID0gcCkpXG5gYGAifQ== -->
+<pre class="r"><code>ctable &lt;- coef(summary(ord_m))
+p &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgIFZhbHVlIFN0ZC4gRXJyb3IgICB0IHZhbHVlICAgICAgcCB2YWx1ZVxuc3BhdGlhbCAgLTEuMzk2MDI3ICAwLjIzODgwODAgLTUuODQ1ODEyIDUuMDQxMDI2ZS0wOVxucG9zdF9tc2UgLTEuNjEyNzYwICAwLjIyMDg2NDUgLTcuMzAyMDM1IDIuODM0NDY2ZS0xM1xuMHwxICAgICAgLTUuMjMxMzA2ICAwLjYyMzQ0NjEgLTguMzkwOTUzIDQuODIyMTg5ZS0xN1xuMXwyICAgICAgLTEuMTAxNjIyICAwLjIzNzY4MzYgLTQuNjM0ODI3IDMuNTcyMzU1ZS0wNlxuMnwzICAgICAgIDEuOTA3MjM3ICAwLjI2MzIxODQgIDcuMjQ1ODM2IDQuMjk3ODA2ZS0xM1xuM3w0ICAgICAgIDYuODgxMzE1ICAxLjA1NjcyNTAgIDYuNTExOTI2IDcuNDE5MzE1ZS0xMVxuIn0= -->
+<pre><code>             Value Std. Error   t value      p value
+spatial  -1.396027  0.2388080 -5.845812 5.041026e-09
+post_mse -1.612760  0.2208645 -7.302035 2.834466e-13
+0|1      -5.231306  0.6234461 -8.390953 4.822189e-17
+1|2      -1.101622  0.2376836 -4.634827 3.572355e-06
+2|3       1.907237  0.2632184  7.245836 4.297806e-13
+3|4       6.881315  1.0567250  6.511926 7.419315e-11</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJpbnQoJ2V4cChjb2VmZmljaWVudCBvZiBzcGF0aWFsIGFuZCBwb3N0X21zZSknKVxuYGBgIn0= -->
+<pre class="r"><code>print('exp(coefficient of spatial and post_mse)')</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiZXhwKGNvZWZmaWNpZW50IG9mIHNwYXRpYWwgYW5kIHBvc3RfbXNlKVwiXG4ifQ== -->
+<pre><code>[1] &quot;exp(coefficient of spatial and post_mse)&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXhwKGNvZWYob3JkX20pKVxuYGBgIn0= -->
+<pre class="r"><code>exp(coef(ord_m))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICBzcGF0aWFsICBwb3N0X21zZSBcbjAuMjQ3NTc4NyAwLjE5OTMzNjYgXG4ifQ== -->
+<pre><code>  spatial  post_mse 
+0.2475787 0.1993366 </code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyMgaW1wb3J0cwoKYGBge3J9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KGxtZTQpCmxpYnJhcnkobG1lclRlc3QpCmBgYAoKIyMgbmVzdGVkIG1vZGVsIGNvbXBhcmlzb24KCmBgYHtyfQpkIDwtIHJlYWRfY3N2KCcuL3Bob3RvZHJhd190cmFjaW5nLmNzdicpICU+JQogIG11dGF0ZSh0cmFjaW5nX2l0ZW0gPSBmYWN0b3IodHJhY2luZ19pdGVtLCBsZXZlbHMgPSBjKCd0aGlzIHNxdWFyZScsICd0aGlzIHNoYXBlJywgJ3RoaXMgY2lyY2xlJykpLCAKICAgICAgICAgY29uZGl0aW9uID0gZmFjdG9yKGNvbmRpdGlvbiwgbGV2ZWxzID0gYygnUycsICdXJywgJ1AnKSkpIAogICMgbXV0YXRlKGFnZSA9IHNjYWxlKGFnZSwgY2VudGVyID0gVFJVRSwgc2NhbGUgPSBGQUxTRSksCiAgIyAgICAgICAgcG9zdF9tc2UgPSBzY2FsZShwb3N0X21zZSwgY2VudGVyID0gVFJVRSwgc2NhbGUgPSBGQUxTRSkpCm0xID0gbG1lcihwb3N0X21zZSB+IGFnZSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKbTIgPSBsbWVyKHBvc3RfbXNlIH4gYWdlICsgKDEgfCBzZXNzaW9uX2lkKSArICgxIHwgdHJhY2luZ19pdGVtKSwgZGF0YT1kKQptMyA9IGxtZXIocG9zdF9tc2UgfiBhZ2UgKyB0cmFjaW5nX2l0ZW0gKyAoMSB8IHNlc3Npb25faWQpLCBkYXRhPWQpCm00ID0gbG1lcihwb3N0X21zZSB+IGFnZSArICgxIHwgc2Vzc2lvbl9pZCkgKyAoMSArIGFnZSB8IHRyYWNpbmdfaXRlbSksIGRhdGE9ZCkKYW5vdmEobTEsIG0yLCBtMywgbTQpCmBgYAoKIyMgTG9vayBhdCBpbnRlcmFjdGlvc24gYmV0d2VlbiBhZ2UgYW5kIHRyYWNpbmcgaXRlbQoKYGBge3J9CiMgY29udHJhc3RzKGQkdHJhY2luZ19pdGVtKSA8LSBjb250ci50cmVhdG1lbnQoMywgYmFzZSA9IDEpCiMgc3VtbWFyeShsbWVyKHBvc3RfbXNlIH4gYWdlICogdHJhY2luZ19pdGVtICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKSkKYGBgCgojIyBMb29rIGF0IGJlc3QgbW9kZWwgCgpgYGB7cn0Kc3VtbWFyeShtMykKYGBgCgojIyBWaXN1YWxpemUgZGF0YQoKYGBge3J9CmQgJT4lCiAgZ2F0aGVyKHJlZ2lzdHJhdGlvbiwgdmFsLCBwcmVfbXNlLCBwb3N0X21zZSkgJT4lCiAgZ2dwbG90KGFlcyh4ID0gYWdlLCB5ID0gdmFsLCBjb2xvciA9IHRyYWNpbmdfaXRlbSkpICsKICAgIGdlb21fcG9pbnQoKSArCiAgICBnZW9tX3Ntb290aChtZXRob2QgPSAnbG0nKSArCiAgICBmYWNldF93cmFwKH4gcmVnaXN0cmF0aW9uKSArCiAgICB0aGVtZV9idygpICsKICAgIHRoZW1lKGFzcGVjdC5yYXRpbyA9IDEpIApgYGAKCmBgYHtyfQpkICU+JQogIGdhdGhlcih0cmFuc2Zvcm1hdGlvbiwgdmFsLCByb3RhdGUsIHRyYW5zbGF0ZSwgc2NhbGUpICU+JQogIGdncGxvdChhZXMoeCA9IGFnZSwgeSA9IHZhbCwgY29sb3IgPSB0cmFjaW5nX2l0ZW0pKSArCiAgICBnZW9tX3BvaW50KCkgKwogICAgZ2VvbV9zbW9vdGgobWV0aG9kID0gJ2xtJykgKwogICAgZmFjZXRfd3JhcCh+IHRyYW5zZm9ybWF0aW9uKSArCiAgICB0aGVtZV9idygpICsKICAgIHRoZW1lKGFzcGVjdC5yYXRpbyA9IDEpICsKICAgIHlsaW0oLTAuMDUsIDAuNCkKCmBgYAoKYGBge3J9Cm0xID0gbG1lcihjb3JyZWN0IH4gYWdlICsgY29uZGl0aW9uICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKQptMiA9IGxtZXIoY29ycmVjdCB+IGFnZSArIGNvbmRpdGlvbiArICgxIHwgdHJhY2luZ19pdGVtKSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKI20zID0gbG1lcihjb3JyZWN0IH4gYWdlICsgdHJhY2luZ19pdGVtICsgcG9zdF9tc2UgKyBwcmVfbXNlICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKQojbTQgPSBsbWVyKGNvcnJlY3QgfiBwb3N0X21zZSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKYW5vdmEobTEsIG0yKQpgYGAKYGBge3J9CnN1bW1hcnkobTQpCnN1bW1hcnkoZCRjb3JyZWN0KQpgYGAKCmBgYHtyfQpkYXRhIDwtIHJlYWRfY3N2KCcuL3Bob3RvZHJhd190cmFjaW5nLmNzdicpCmBgYAoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyMgaW1wb3J0cwoKYGBge3J9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KGxtZTQpCmxpYnJhcnkobG1lclRlc3QpCmBgYAoKIyMgbmVzdGVkIG1vZGVsIGNvbXBhcmlzb24KCmBgYHtyfQpkIDwtIHJlYWRfY3N2KCcuL3Bob3RvZHJhd190cmFjaW5nLmNzdicpICU+JQogIG11dGF0ZSh0cmFjaW5nX2l0ZW0gPSBmYWN0b3IodHJhY2luZ19pdGVtLCBsZXZlbHMgPSBjKCd0aGlzIHNxdWFyZScsICd0aGlzIHNoYXBlJywgJ3RoaXMgY2lyY2xlJykpLCAKICAgICAgICAgY29uZGl0aW9uID0gZmFjdG9yKGNvbmRpdGlvbiwgbGV2ZWxzID0gYygnUycsICdXJywgJ1AnKSkpIAogICMgbXV0YXRlKGFnZSA9IHNjYWxlKGFnZSwgY2VudGVyID0gVFJVRSwgc2NhbGUgPSBGQUxTRSksCiAgIyAgICAgICAgcG9zdF9tc2UgPSBzY2FsZShwb3N0X21zZSwgY2VudGVyID0gVFJVRSwgc2NhbGUgPSBGQUxTRSkpCm0xID0gbG1lcihwb3N0X21zZSB+IGFnZSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKbTIgPSBsbWVyKHBvc3RfbXNlIH4gYWdlICsgKDEgfCBzZXNzaW9uX2lkKSArICgxIHwgdHJhY2luZ19pdGVtKSwgZGF0YT1kKQptMyA9IGxtZXIocG9zdF9tc2UgfiBhZ2UgKyB0cmFjaW5nX2l0ZW0gKyAoMSB8IHNlc3Npb25faWQpLCBkYXRhPWQpCm00ID0gbG1lcihwb3N0X21zZSB+IGFnZSArICgxIHwgc2Vzc2lvbl9pZCkgKyAoMSArIGFnZSB8IHRyYWNpbmdfaXRlbSksIGRhdGE9ZCkKYW5vdmEobTEsIG0yLCBtMywgbTQpCmBgYAoKIyMgTG9vayBhdCBpbnRlcmFjdGlvc24gYmV0d2VlbiBhZ2UgYW5kIHRyYWNpbmcgaXRlbQoKYGBge3J9CiMgY29udHJhc3RzKGQkdHJhY2luZ19pdGVtKSA8LSBjb250ci50cmVhdG1lbnQoMywgYmFzZSA9IDEpCiMgc3VtbWFyeShsbWVyKHBvc3RfbXNlIH4gYWdlICogdHJhY2luZ19pdGVtICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKSkKYGBgCgojIyBMb29rIGF0IGJlc3QgbW9kZWwgCgpgYGB7cn0Kc3VtbWFyeShtMykKYGBgCgojIyBWaXN1YWxpemUgZGF0YQoKYGBge3J9CmQgJT4lCiAgZ2F0aGVyKHJlZ2lzdHJhdGlvbiwgdmFsLCBwcmVfbXNlLCBwb3N0X21zZSkgJT4lCiAgZ2dwbG90KGFlcyh4ID0gYWdlLCB5ID0gdmFsLCBjb2xvciA9IHRyYWNpbmdfaXRlbSkpICsKICAgIGdlb21fcG9pbnQoKSArCiAgICBnZW9tX3Ntb290aChtZXRob2QgPSAnbG0nKSArCiAgICBmYWNldF93cmFwKH4gcmVnaXN0cmF0aW9uKSArCiAgICB0aGVtZV9idygpICsKICAgIHRoZW1lKGFzcGVjdC5yYXRpbyA9IDEpIApgYGAKCmBgYHtyfQpkICU+JQogIGdhdGhlcih0cmFuc2Zvcm1hdGlvbiwgdmFsLCByb3RhdGUsIHRyYW5zbGF0ZSwgc2NhbGUpICU+JQogIGdncGxvdChhZXMoeCA9IGFnZSwgeSA9IHZhbCwgY29sb3IgPSB0cmFjaW5nX2l0ZW0pKSArCiAgICBnZW9tX3BvaW50KCkgKwogICAgZ2VvbV9zbW9vdGgobWV0aG9kID0gJ2xtJykgKwogICAgZmFjZXRfd3JhcCh+IHRyYW5zZm9ybWF0aW9uKSArCiAgICB0aGVtZV9idygpICsKICAgIHRoZW1lKGFzcGVjdC5yYXRpbyA9IDEpICsKICAgIHlsaW0oLTAuMDUsIDAuNCkKCmBgYAoKYGBge3J9Cm0xID0gbG1lcihjb3JyZWN0IH4gYWdlICsgY29uZGl0aW9uICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKQptMiA9IGxtZXIoY29ycmVjdCB+IGFnZSArIGNvbmRpdGlvbiArICgxIHwgdHJhY2luZ19pdGVtKSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKI20zID0gbG1lcihjb3JyZWN0IH4gYWdlICsgdHJhY2luZ19pdGVtICsgcG9zdF9tc2UgKyBwcmVfbXNlICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKQojbTQgPSBsbWVyKGNvcnJlY3QgfiBwb3N0X21zZSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKYW5vdmEobTEsIG0yKQpgYGAKYGBge3J9CnN1bW1hcnkobTQpCnN1bW1hcnkoZCRjb3JyZWN0KQpgYGAKCkV4YW1pbmUgaG93IHRoZSBzaGFwZSBlcnJvciBhbmQgc3BhdGlhbCBlcnJvciB3b3VsZCBwcmVkaWN0IGh1bWFuIGp1ZGdtZW50cwpgYGB7cn0KbGlicmFyeShsbWU0KQpyYXRlcl9kYXRhIDwtIHJlYWQuY3N2KCcuL3Bob3RvZHJhd19zdW1tYXJ5LmNzdicpCmxtX3JhdGUgPSBsbShmb3JtdWxhPXJhdGVyMSB+IHNwYXRpYWwgKyBwb3N0X21zZSwgZGF0YT1yYXRlcl9kYXRhKQpzdW1tYXJ5KGxtX3JhdGUpCmBgYAoKYGBge3J9CmdncGxvdChyYXRlcl9kYXRhLCBhZXMoc3BhdGlhbCwgcmF0ZXIxLCBjb2xvcj10cmFjaW5nX2l0ZW0pKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kPSJsbSIpICsKICBnZW9tX3BvaW50KHNpemU9MykgKwogIHRoZW1lX2J3KCkgKyAKICB4bGFiKCJzcGF0aWFsIGVycm9yIikgKwogIHlsYWIoImh1bWFuIGp1ZGdtZW50IikgKwogIGdndGl0bGUoJ1NwYXRpYWwgRXJyb3IgdnMuIEh1bWFuIGp1ZGdtZW50JykKYGBgCgpgYGB7cn0KZ2dwbG90KHJhdGVyX2RhdGEsIGFlcyhwb3N0X21zZSwgcmF0ZXIxLCBjb2xvcj10cmFjaW5nX2l0ZW0pKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kPSJsbSIpICsKICBnZW9tX3BvaW50KHNpemU9MykgKwogIHRoZW1lX2J3KCkgKyAKICB4bGFiKCJzcGF0aWFsIGVycm9yIikgKwogIHlsYWIoImh1bWFuIGp1ZGdtZW50IikgKwogIGdndGl0bGUoJ1NwYXRpYWwgRXJyb3IgdnMuIEh1bWFuIGp1ZGdtZW50JykKYGBgCgpgYGB7cn0KbGlicmFyeShNQVNTKQpyYXRlcl9kYXRhIDwtIHJlYWQuY3N2KCcuL3Bob3RvZHJhd19zdW1tYXJ5LmNzdicpCnJhdGVyX2RhdGEkcmF0ZXIxIDwtIGZhY3RvcihyYXRlcl9kYXRhJHJhdGVyMSwgbGV2ZWxzID0gYygiMCIsICIxIiwgIjIiLCAiMyIsICI0IiksIG9yZGVyZWQ9VFJVRSkKcmF0ZXJfZGF0YSRwb3N0X21zZSA9IHNjYWxlKHJhdGVyX2RhdGEkcG9zdF9tc2UpCnJhdGVyX2RhdGEkc3BhdGlhbCA9IHNjYWxlKHJhdGVyX2RhdGEkc3BhdGlhbCkKb3JkX20gPC0gcG9scihyYXRlcjEgfiBzcGF0aWFsICsgcG9zdF9tc2UsIHJhdGVyX2RhdGEsIEhlc3M9VFJVRSkKCnN1bW1hcnkob3JkX20pCmN0YWJsZSA8LSBjb2VmKHN1bW1hcnkob3JkX20pKQpwIDwtIHBub3JtKGFicyhjdGFibGVbLCAidCB2YWx1ZSJdKSwgbG93ZXIudGFpbCA9IEZBTFNFKSAqIDIKKGN0YWJsZSA8LSBjYmluZChjdGFibGUsICJwIHZhbHVlIiA9IHApKQoKcHJpbnQoJ2V4cChjb2VmZmljaWVudCBvZiBzcGF0aWFsIGFuZCBwb3N0X21zZSknKQpleHAoY29lZihvcmRfbSkpCgpgYGAKCgo=</div>
 
 
 

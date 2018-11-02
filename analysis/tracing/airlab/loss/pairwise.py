@@ -99,10 +99,20 @@ class MSE(_PairwiseImageLoss):
 
         self.warped_moving_image = F.grid_sample(self._moving_image.image, displacement)
 
+        # calculate difference on the warped drawing. The size of the warped drawing might be different from the original image
         value = (self.warped_moving_image - self._fixed_image.image).pow(2)  #(1,1,imgs, imgs)
         value = th.masked_select(value, mask)
+        #print 'warp loss', th.sum(value), value.shape
 
-        return self.return_loss(value)
+        # calculate difference on the remaining reference shape out of the warped drawing
+        ref_value = (1-self._fixed_image.image).pow(2)  # (1,1,imgs, imgs)
+        ref_mask = th.ones_like(self._fixed_image.image, dtype=th.uint8, device=self._device)- mask # (1,1, imgs, imgs)
+        ref_value = th.masked_select(ref_value, ref_mask)
+        #print 'ref loss', th.sum(ref_value), ref_value.shape
+
+        final = th.cat((value, ref_value))
+
+        return self.return_loss(final)
 
 
 class NCC(_PairwiseImageLoss):
