@@ -19,7 +19,7 @@ from ..utils import image as iutils
 
 
 def compute_grid(image_size, dtype=th.float32, device='cpu'):
-
+    # normalize the indices into -1 to 1
     dim = len(image_size)
 
     if(dim == 2):

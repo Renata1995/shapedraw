@@ -102,6 +102,7 @@ class RigidTransformation(_Transformation):
         rot_scale_matrix[2, 2] = 1
 
         matrix = th.mm(trans_matrix, rot_scale_matrix)[0:2, :]
+        scale = th.sqrt( ((self.trans_parameters[3] - 1) ** 2 + (self.trans_parameters[4]-1) ** 2) *0.5 )
 
         return th.mm(self._grid.view(np.prod(self._image_size).tolist(), self._dim + 1), matrix.t()) \
                    .view(self._image_size.tolist()[0], self._image_size.tolist()[1], self._dim) - self._grid[:, :, :2]

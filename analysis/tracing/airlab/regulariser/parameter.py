@@ -46,10 +46,9 @@ class _ParameterRegulariser(th.nn.modules.Module):
 class _SpatialParameterRegulariser(_ParameterRegulariser):
     def __init__(self, parameter_name, weight=1, scaling=[1], size_average=True, reduce=True):
         super(_SpatialParameterRegulariser, self).__init__(parameter_name, weight, size_average, reduce)
-
         self._dim = len(scaling)
         self._scaling = scaling
-        if len(weight) == 1:
+        if weight == 1:
             self._scaling = np.ones(self._dim)*self._scaling[0]
 
         self.name = "parent"
@@ -180,5 +179,22 @@ class SparsityRegulariser(_ParameterRegulariser):
     def forward(self, parameters):
         for name, parameter in parameters:
             if self._parameter_name in name:
+                print parameter
                 return self.return_loss(th.abs(parameter))
+
+"""
+    Scaling regularisation: Punish scaling
+"""
+class ScalingRegulariser(_ParameterRegulariser):
+    def __init__(self, parameter_name, weight=1, size_average=False, reduce=True):
+        super(ScalingRegulariser, self).__init__(parameter_name, weight, size_average, reduce)
+
+        self.name = "scaling_L1"
+
+    def forward(self, parameters):
+        for name, parameter in parameters:
+            if self._parameter_name in name:
+                scale = th.abs(parameter[3]-1) + th.abs(parameter[4]-1)
+
+                return self.return_loss(scale)
 

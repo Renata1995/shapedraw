@@ -107,20 +107,58 @@ ggplot(rater_data, aes(post_mse, rater1, color=tracing_item)) +
 
 ```{r}
 library(MASS)
-rater_data <- read.csv('./photodraw_summary.csv')
+rater_data <- read.csv('./photodraw_summary_mse.csv')
 rater_data$rater1 <- factor(rater_data$rater1, levels = c("0", "1", "2", "3", "4"), ordered=TRUE)
-rater_data$post_mse = scale(rater_data$post_mse)
+rater_data$post_tran = scale(rater_data$post_tran)
 rater_data$spatial = scale(rater_data$spatial)
-ord_m <- polr(rater1 ~ spatial + post_mse, rater_data, Hess=TRUE)
+ord_m <- polr(rater1 ~ spatial + post_tran, rater_data, Hess=TRUE)
 
 summary(ord_m)
 ctable <- coef(summary(ord_m))
 p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
 (ctable <- cbind(ctable, "p value" = p))
 
-print('exp(coefficient of spatial and post_mse)')
+print('exp(coefficient of spatial and post_tran)')
 exp(coef(ord_m))
 
 ```
+split the data by tracing items
 
+```{r}
+square = subset(rater_data, tracing_item=='this square')
+ord_m <- polr(rater1 ~ spatial + post_tran, rater_data, Hess=TRUE)
+
+summary(ord_m)
+ctable <- coef(summary(ord_m))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p))
+
+print('exp(coefficient of spatial and post_tran)')
+exp(coef(ord_m))
+```
+
+```{r}
+ord2 <- polr(rater1 ~ spatial, rater_data, Hess=TRUE)
+
+summary(ord2)
+ctable <- coef(summary(ord2))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p))
+
+print('exp(coefficient of spatial)')
+exp(coef(ord2))
+
+```
+
+```{r}
+ord2 <- polr(rater1 ~ post_mse, rater_data, Hess=TRUE)
+
+summary(ord2)
+ctable <- coef(summary(ord2))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p))
+
+print('exp(coefficient of post_mse)')
+exp(coef(ord2))
+```
 

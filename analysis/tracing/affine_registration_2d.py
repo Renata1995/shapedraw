@@ -53,13 +53,20 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
 
     # choose the affine transformation model
     transformation = al.transformation.pairwise.RigidTransformation(moving_image.size, dtype=dtype, device=device)
-
     registration.set_transformation(transformation)
 
-    # choose the Mean Squared Error as image loss
-    image_loss = al.loss.pairwise.MSE(fixed_image, moving_image, size_average=True)
-    init_loss = np.sum(np.square(fixed_image.numpy() - moving_image.numpy()))/fsize
+    # choose the scaling regulariser and the diffusion regulariser
+    # scale_reg = al.regulariser.parameter.ScalingRegulariser('trans_parameters')
+    # scale_reg.set_weight(0.001)
+    # registration.set_regulariser_parameter([scale_reg])
+    # dis_reg = al.regulariser.displacement.DiffusionRegulariser(moving_image.spacing, size_average=False)
+    # registration.set_regulariser_displacement([dis_reg])
+    # dis_reg.set_weight(0.1)
 
+
+    # choose the Mean Squared Error as image loss
+    image_loss = al.loss.pairwise.F1(fixed_image, moving_image)
+    #init_loss = np.sum(np.square(fixed_image.numpy() - moving_image.numpy()))/fsize
     registration.set_image_loss([image_loss])
 
     # choose the Adam optimizer to minimize the objective
@@ -78,7 +85,8 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
     param = transformation.trans_parameters.detach().numpy()
     translate = np.sqrt(np.square(param[1]) + np.square(param[2]))
     scale = np.sqrt( ( np.square(param[3]-1) + np.square(param[4] - 1) ) * 0.5  )
-    final_loss = registration.loss.detach().numpy()
+    init_loss = registration.init_loss.detach().numpy()
+    final_loss = registration.img_loss.detach().numpy()
 
 
     # plot the results
@@ -97,13 +105,18 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
     plt.savefig(output_path)
     plt.close()
 
-
     return init_loss, final_loss, np.abs(param[0]), translate, scale, warped_image
 
-# img_draw = 'test3.png'
-# img_ref = 'tracing_ref/this circle_ref.png'
-# init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref, 'transformed.png')
-# print init_loss, final_loss
+img_draw = 'test3.png'
+img_ref = 'tracing_ref/this circle_ref.png'
+
+cv_draw = cv2.imread(img_draw)
+print cv_draw[cv_draw==255].size
+print cv_draw[cv_draw<255].size
+init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref, 'transformed.png')
+print init_loss, final_loss
+
+
 
 
 # write result images

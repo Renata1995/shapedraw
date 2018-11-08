@@ -16,7 +16,7 @@ import torch as th
 from numpy import inf,max
 
 class _Registration(object):
-	def __init__(self, dtype=th.float32, device='cpu', verbose=False):
+	def __init__(self, dtype=th.float32, device='cpu', verbose=True):
 		super(_Registration, self).__init__()
 		self._dtype = dtype
 		self._device = device
@@ -35,6 +35,8 @@ class _Registration(object):
 
 		self._verbose=verbose
 		self.loss=inf
+		self.img_loss = inf
+		self.init_loss = inf
 
 	def set_optimizer(self, optimizer):
 		self._optimizer = optimizer
@@ -123,10 +125,11 @@ class PairwiseRegistration(_PairwiseRegistration):
 
 		# sum up all loss terms
 		loss = sum(lossList)
+		img_loss = lossList[0]
 
 		loss.backward()
 
-		return loss
+		return loss, img_loss
 
 
 	def start(self,EarlyStopping=False,StopPatience=10):
@@ -139,10 +142,15 @@ class PairwiseRegistration(_PairwiseRegistration):
 			except:
 				self.loss=inf
 
+		# init loss
+		loss, img_loss = self._optimizer.step(self._closure)
+		self.init_loss = img_loss
+
 		for iter_index in range(self._number_of_iterations):
 			if self._verbose:
 				print(str(iter_index) + " ")
-			loss = self._optimizer.step(self._closure)
+			loss, img_loss = self._optimizer.step(self._closure)
+
 			if EarlyStopping:
 				if loss < self.loss:
 					n=0
@@ -154,6 +162,7 @@ class PairwiseRegistration(_PairwiseRegistration):
 					self._transformation=best
 					return
 		self.loss=loss
+		self.img_loss = img_loss
 
 class DemonsRegistraion(_Registration):
 	def __init__(self, dtype=th.float, device=th.device('cpu')):

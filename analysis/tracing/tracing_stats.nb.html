@@ -316,68 +316,189 @@ summary(lm_rate)</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShNQVNTKVxucmF0ZXJfZGF0YSA8LSByZWFkLmNzdignLi9waG90b2RyYXdfc3VtbWFyeS5jc3YnKVxucmF0ZXJfZGF0YSRyYXRlcjEgPC0gZmFjdG9yKHJhdGVyX2RhdGEkcmF0ZXIxLCBsZXZlbHMgPSBjKFwiMFwiLCBcIjFcIiwgXCIyXCIsIFwiM1wiLCBcIjRcIiksIG9yZGVyZWQ9VFJVRSlcbnJhdGVyX2RhdGEkcG9zdF9tc2UgPSBzY2FsZShyYXRlcl9kYXRhJHBvc3RfbXNlKVxucmF0ZXJfZGF0YSRzcGF0aWFsID0gc2NhbGUocmF0ZXJfZGF0YSRzcGF0aWFsKVxub3JkX20gPC0gcG9scihyYXRlcjEgfiBzcGF0aWFsICsgcG9zdF9tc2UsIHJhdGVyX2RhdGEsIEhlc3M9VFJVRSlcbnN1bW1hcnkob3JkX20pXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShNQVNTKVxucmF0ZXJfZGF0YSA8LSByZWFkLmNzdignLi9waG90b2RyYXdfc3VtbWFyeV9tc2UuY3N2JylcbnJhdGVyX2RhdGEkcmF0ZXIxIDwtIGZhY3RvcihyYXRlcl9kYXRhJHJhdGVyMSwgbGV2ZWxzID0gYyhcIjBcIiwgXCIxXCIsIFwiMlwiLCBcIjNcIiwgXCI0XCIpLCBvcmRlcmVkPVRSVUUpXG5yYXRlcl9kYXRhJHBvc3RfdHJhbiA9IHNjYWxlKHJhdGVyX2RhdGEkcG9zdF90cmFuKVxucmF0ZXJfZGF0YSRzcGF0aWFsID0gc2NhbGUocmF0ZXJfZGF0YSRzcGF0aWFsKVxub3JkX20gPC0gcG9scihyYXRlcjEgfiBzcGF0aWFsICsgcG9zdF90cmFuLCByYXRlcl9kYXRhLCBIZXNzPVRSVUUpXG5zdW1tYXJ5KG9yZF9tKVxuYGBgIn0= -->
 <pre class="r"><code>library(MASS)
-rater_data &lt;- read.csv('./photodraw_summary.csv')
+rater_data &lt;- read.csv('./photodraw_summary_mse.csv')
 rater_data$rater1 &lt;- factor(rater_data$rater1, levels = c(&quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;), ordered=TRUE)
-rater_data$post_mse = scale(rater_data$post_mse)
+rater_data$post_tran = scale(rater_data$post_tran)
 rater_data$spatial = scale(rater_data$spatial)
-ord_m &lt;- polr(rater1 ~ spatial + post_mse, rater_data, Hess=TRUE)
+ord_m &lt;- polr(rater1 ~ spatial + post_tran, rater_data, Hess=TRUE)
 summary(ord_m)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiQ2FsbDpcbnBvbHIoZm9ybXVsYSA9IHJhdGVyMSB+IHNwYXRpYWwgKyBwb3N0X21zZSwgZGF0YSA9IHJhdGVyX2RhdGEsIFxuICAgIEhlc3MgPSBUUlVFKVxuXG5Db2VmZmljaWVudHM6XG4gICAgICAgICAgVmFsdWUgU3RkLiBFcnJvciB0IHZhbHVlXG5zcGF0aWFsICAtMS4zOTYgICAgIDAuMjM4OCAgLTUuODQ2XG5wb3N0X21zZSAtMS42MTMgICAgIDAuMjIwOSAgLTcuMzAyXG5cbkludGVyY2VwdHM6XG4gICAgVmFsdWUgICBTdGQuIEVycm9yIHQgdmFsdWVcbjB8MSAtNS4yMzEzICAwLjYyMzQgICAgLTguMzkxMFxuMXwyIC0xLjEwMTYgIDAuMjM3NyAgICAtNC42MzQ4XG4yfDMgIDEuOTA3MiAgMC4yNjMyICAgICA3LjI0NThcbjN8NCAgNi44ODEzICAxLjA1NjcgICAgIDYuNTExOVxuXG5SZXNpZHVhbCBEZXZpYW5jZTogMjY5Ljc2ODQgXG5BSUM6IDI4MS43Njg0IFxuIn0= -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ2FsbDpcbnBvbHIoZm9ybXVsYSA9IHJhdGVyMSB+IHNwYXRpYWwgKyBwb3N0X3RyYW4sIGRhdGEgPSByYXRlcl9kYXRhLCBcbiAgICBIZXNzID0gVFJVRSlcblxuQ29lZmZpY2llbnRzOlxuICAgICAgICAgICBWYWx1ZSBTdGQuIEVycm9yIHQgdmFsdWVcbnNwYXRpYWwgICAtMS40MTYgICAgIDAuMjM5MiAgLTUuOTIzXG5wb3N0X3RyYW4gLTEuNzA1ICAgICAwLjIyNTMgIC03LjU3MFxuXG5JbnRlcmNlcHRzOlxuICAgIFZhbHVlICAgU3RkLiBFcnJvciB0IHZhbHVlXG4wfDEgLTUuMDYzMSAgMC41OTI4ICAgIC04LjU0MDdcbjF8MiAtMS4wMzU1ICAwLjIzNzEgICAgLTQuMzY3NVxuMnwzICAyLjAwMzMgIDAuMjY4NiAgICAgNy40NTg0XG4zfDQgIDcuMDExMiAgMS4wNjAxICAgICA2LjYxMzdcblxuUmVzaWR1YWwgRGV2aWFuY2U6IDI3MS41MDIxIFxuQUlDOiAyODMuNTAyMSBcbiJ9 -->
 <pre><code>Call:
-polr(formula = rater1 ~ spatial + post_mse, data = rater_data, 
+polr(formula = rater1 ~ spatial + post_tran, data = rater_data, 
     Hess = TRUE)
 
 Coefficients:
-          Value Std. Error t value
-spatial  -1.396     0.2388  -5.846
-post_mse -1.613     0.2209  -7.302
+           Value Std. Error t value
+spatial   -1.416     0.2392  -5.923
+post_tran -1.705     0.2253  -7.570
 
 Intercepts:
     Value   Std. Error t value
-0|1 -5.2313  0.6234    -8.3910
-1|2 -1.1016  0.2377    -4.6348
-2|3  1.9072  0.2632     7.2458
-3|4  6.8813  1.0567     6.5119
+0|1 -5.0631  0.5928    -8.5407
+1|2 -1.0355  0.2371    -4.3675
+2|3  2.0033  0.2686     7.4584
+3|4  7.0112  1.0601     6.6137
 
-Residual Deviance: 269.7684 
-AIC: 281.7684 </code></pre>
+Residual Deviance: 271.5021 
+AIC: 283.5021 </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3RhYmxlIDwtIGNvZWYoc3VtbWFyeShvcmRfbSkpXG5wIDwtIHBub3JtKGFicyhjdGFibGVbLCBcInQgdmFsdWVcIl0pLCBsb3dlci50YWlsID0gRkFMU0UpICogMlxuKGN0YWJsZSA8LSBjYmluZChjdGFibGUsIFwicCB2YWx1ZVwiID0gcCkpXG5gYGAifQ== -->
 <pre class="r"><code>ctable &lt;- coef(summary(ord_m))
 p &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
 (ctable &lt;- cbind(ctable, &quot;p value&quot; = p))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgIFZhbHVlIFN0ZC4gRXJyb3IgICB0IHZhbHVlICAgICAgcCB2YWx1ZVxuc3BhdGlhbCAgLTEuMzk2MDI3ICAwLjIzODgwODAgLTUuODQ1ODEyIDUuMDQxMDI2ZS0wOVxucG9zdF9tc2UgLTEuNjEyNzYwICAwLjIyMDg2NDUgLTcuMzAyMDM1IDIuODM0NDY2ZS0xM1xuMHwxICAgICAgLTUuMjMxMzA2ICAwLjYyMzQ0NjEgLTguMzkwOTUzIDQuODIyMTg5ZS0xN1xuMXwyICAgICAgLTEuMTAxNjIyICAwLjIzNzY4MzYgLTQuNjM0ODI3IDMuNTcyMzU1ZS0wNlxuMnwzICAgICAgIDEuOTA3MjM3ICAwLjI2MzIxODQgIDcuMjQ1ODM2IDQuMjk3ODA2ZS0xM1xuM3w0ICAgICAgIDYuODgxMzE1ICAxLjA1NjcyNTAgIDYuNTExOTI2IDcuNDE5MzE1ZS0xMVxuIn0= -->
-<pre><code>             Value Std. Error   t value      p value
-spatial  -1.396027  0.2388080 -5.845812 5.041026e-09
-post_mse -1.612760  0.2208645 -7.302035 2.834466e-13
-0|1      -5.231306  0.6234461 -8.390953 4.822189e-17
-1|2      -1.101622  0.2376836 -4.634827 3.572355e-06
-2|3       1.907237  0.2632184  7.245836 4.297806e-13
-3|4       6.881315  1.0567250  6.511926 7.419315e-11</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgICBWYWx1ZSBTdGQuIEVycm9yICAgdCB2YWx1ZSAgICAgIHAgdmFsdWVcbnNwYXRpYWwgICAtMS40MTY0ODcgIDAuMjM5MTY1NyAtNS45MjI2MTggMy4xNjg1NzFlLTA5XG5wb3N0X3RyYW4gLTEuNzA1NDY4ICAwLjIyNTI4MjUgLTcuNTcwMzUyIDMuNzIyMTUyZS0xNFxuMHwxICAgICAgIC01LjA2MzA4MiAgMC41OTI4MTc0IC04LjU0MDcxMSAxLjMzMzk4NGUtMTdcbjF8MiAgICAgICAtMS4wMzU0NzEgIDAuMjM3MDg2MiAtNC4zNjc0ODggMS4yNTY4MzhlLTA1XG4yfDMgICAgICAgIDIuMDAzMzIzICAwLjI2ODYwMTMgIDcuNDU4MzUyIDguNzYxMTU2ZS0xNFxuM3w0ICAgICAgICA3LjAxMTE3MyAgMS4wNjAxMDI2ICA2LjYxMzY3NCAzLjc0ODk3OWUtMTFcbiJ9 -->
+<pre><code>              Value Std. Error   t value      p value
+spatial   -1.416487  0.2391657 -5.922618 3.168571e-09
+post_tran -1.705468  0.2252825 -7.570352 3.722152e-14
+0|1       -5.063082  0.5928174 -8.540711 1.333984e-17
+1|2       -1.035471  0.2370862 -4.367488 1.256838e-05
+2|3        2.003323  0.2686013  7.458352 8.761156e-14
+3|4        7.011173  1.0601026  6.613674 3.748979e-11</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJpbnQoJ2V4cChjb2VmZmljaWVudCBvZiBzcGF0aWFsIGFuZCBwb3N0X21zZSknKVxuYGBgIn0= -->
-<pre class="r"><code>print('exp(coefficient of spatial and post_mse)')</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJpbnQoJ2V4cChjb2VmZmljaWVudCBvZiBzcGF0aWFsIGFuZCBwb3N0X3RyYW4pJylcbmBgYCJ9 -->
+<pre class="r"><code>print('exp(coefficient of spatial and post_tran)')</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiZXhwKGNvZWZmaWNpZW50IG9mIHNwYXRpYWwgYW5kIHBvc3RfbXNlKVwiXG4ifQ== -->
-<pre><code>[1] &quot;exp(coefficient of spatial and post_mse)&quot;</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiZXhwKGNvZWZmaWNpZW50IG9mIHNwYXRpYWwgYW5kIHBvc3RfdHJhbilcIlxuIn0= -->
+<pre><code>[1] &quot;exp(coefficient of spatial and post_tran)&quot;</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXhwKGNvZWYob3JkX20pKVxuYGBgIn0= -->
 <pre class="r"><code>exp(coef(ord_m))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICBzcGF0aWFsICBwb3N0X21zZSBcbjAuMjQ3NTc4NyAwLjE5OTMzNjYgXG4ifQ== -->
-<pre><code>  spatial  post_mse 
-0.2475787 0.1993366 </code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiICBzcGF0aWFsIHBvc3RfdHJhbiBcbjAuMjQyNTY0NiAwLjE4MTY4NzQgXG4ifQ== -->
+<pre><code>  spatial post_tran 
+0.2425646 0.1816874 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>split the data by tracing items</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3F1YXJlID0gc3Vic2V0KHJhdGVyX2RhdGEsIHRyYWNpbmdfaXRlbT09J3RoaXMgc3F1YXJlJylcbm9yZF9tIDwtIHBvbHIocmF0ZXIxIH4gc3BhdGlhbCArIHBvc3RfdHJhbiwgcmF0ZXJfZGF0YSwgSGVzcz1UUlVFKVxuXG5zdW1tYXJ5KG9yZF9tKVxuY3RhYmxlIDwtIGNvZWYoc3VtbWFyeShvcmRfbSkpXG5wIDwtIHBub3JtKGFicyhjdGFibGVbLCBcInQgdmFsdWVcIl0pLCBsb3dlci50YWlsID0gRkFMU0UpICogMlxuKGN0YWJsZSA8LSBjYmluZChjdGFibGUsIFwicCB2YWx1ZVwiID0gcCkpXG5cbnByaW50KCdleHAoY29lZmZpY2llbnQgb2Ygc3BhdGlhbCBhbmQgcG9zdF90cmFuKScpXG5leHAoY29lZihvcmRfbSkpXG5gYGAifQ== -->
+<pre class="r"><code>square = subset(rater_data, tracing_item=='this square')
+ord_m &lt;- polr(rater1 ~ spatial + post_tran, rater_data, Hess=TRUE)
+
+summary(ord_m)
+ctable &lt;- coef(summary(ord_m))
+p &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p))
+
+print('exp(coefficient of spatial and post_tran)')
+exp(coef(ord_m))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3JkMiA8LSBwb2xyKHJhdGVyMSB+IHNwYXRpYWwsIHJhdGVyX2RhdGEsIEhlc3M9VFJVRSlcbnN1bW1hcnkob3JkMilcbmBgYCJ9 -->
+<pre class="r"><code>ord2 &lt;- polr(rater1 ~ spatial, rater_data, Hess=TRUE)
+summary(ord2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ2FsbDpcbnBvbHIoZm9ybXVsYSA9IHJhdGVyMSB+IHNwYXRpYWwsIGRhdGEgPSByYXRlcl9kYXRhLCBIZXNzID0gVFJVRSlcblxuQ29lZmZpY2llbnRzOlxuICAgICAgICAgVmFsdWUgU3RkLiBFcnJvciB0IHZhbHVlXG5zcGF0aWFsIC0xLjQzOSAgICAgMC4yMjE2ICAtNi40OTFcblxuSW50ZXJjZXB0czpcbiAgICBWYWx1ZSAgIFN0ZC4gRXJyb3IgdCB2YWx1ZVxuMHwxIC00LjExMjEgIDAuNTMyNyAgICAtNy43MTk1XG4xfDIgLTAuNzQ2NCAgMC4xOTIwICAgIC0zLjg4ODJcbjJ8MyAgMS4zMzk2ICAwLjIwMDEgICAgIDYuNjk0OVxuM3w0ICA1LjU4MzMgIDEuMDA5MCAgICAgNS41MzM3XG5cblJlc2lkdWFsIERldmlhbmNlOiAzNDAuNTIzIFxuQUlDOiAzNTAuNTIzIFxuIn0= -->
+<pre><code>Call:
+polr(formula = rater1 ~ spatial, data = rater_data, Hess = TRUE)
+
+Coefficients:
+         Value Std. Error t value
+spatial -1.439     0.2216  -6.491
+
+Intercepts:
+    Value   Std. Error t value
+0|1 -4.1121  0.5327    -7.7195
+1|2 -0.7464  0.1920    -3.8882
+2|3  1.3396  0.2001     6.6949
+3|4  5.5833  1.0090     5.5337
+
+Residual Deviance: 340.523 
+AIC: 350.523 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3RhYmxlIDwtIGNvZWYoc3VtbWFyeShvcmQyKSlcbnAgPC0gcG5vcm0oYWJzKGN0YWJsZVssIFwidCB2YWx1ZVwiXSksIGxvd2VyLnRhaWwgPSBGQUxTRSkgKiAyXG4oY3RhYmxlIDwtIGNiaW5kKGN0YWJsZSwgXCJwIHZhbHVlXCIgPSBwKSlcbmBgYCJ9 -->
+<pre class="r"><code>ctable &lt;- coef(summary(ord2))
+p &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgIFZhbHVlIFN0ZC4gRXJyb3IgICB0IHZhbHVlICAgICAgcCB2YWx1ZVxuc3BhdGlhbCAtMS40Mzg3NzM0ICAwLjIyMTY1MDAgLTYuNDkxMTk2IDguNTE1NzY1ZS0xMVxuMHwxICAgICAtNC4xMTIwNjgyICAwLjUzMjY4NjAgLTcuNzE5NDk4IDEuMTY3ODg3ZS0xNFxuMXwyICAgICAtMC43NDYzNjAyICAwLjE5MTk1MzcgLTMuODg4MjMxIDEuMDA5Nzc3ZS0wNFxuMnwzICAgICAgMS4zMzk1ODQ0ICAwLjIwMDA5MTcgIDYuNjk0ODU0IDIuMTU4ODczZS0xMVxuM3w0ICAgICAgNS41ODMyODA1ICAxLjAwODk1MzcgIDUuNTMzNzMzIDMuMTM0ODYzZS0wOFxuIn0= -->
+<pre><code>             Value Std. Error   t value      p value
+spatial -1.4387734  0.2216500 -6.491196 8.515765e-11
+0|1     -4.1120682  0.5326860 -7.719498 1.167887e-14
+1|2     -0.7463602  0.1919537 -3.888231 1.009777e-04
+2|3      1.3395844  0.2000917  6.694854 2.158873e-11
+3|4      5.5832805  1.0089537  5.533733 3.134863e-08</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJpbnQoJ2V4cChjb2VmZmljaWVudCBvZiBzcGF0aWFsKScpXG5gYGAifQ== -->
+<pre class="r"><code>print('exp(coefficient of spatial)')</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiZXhwKGNvZWZmaWNpZW50IG9mIHNwYXRpYWwpXCJcbiJ9 -->
+<pre><code>[1] &quot;exp(coefficient of spatial)&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXhwKGNvZWYob3JkMikpXG5gYGAifQ== -->
+<pre class="r"><code>exp(coef(ord2))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICBzcGF0aWFsIFxuMC4yMzcyMTg2IFxuIn0= -->
+<pre><code>  spatial 
+0.2372186 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxub3JkMiA8LSBwb2xyKHJhdGVyMSB+IHBvc3RfbXNlLCByYXRlcl9kYXRhLCBIZXNzPVRSVUUpXG5zdW1tYXJ5KG9yZDIpXG5gYGAifQ== -->
+<pre class="r"><code>ord2 &lt;- polr(rater1 ~ post_mse, rater_data, Hess=TRUE)
+summary(ord2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ2FsbDpcbnBvbHIoZm9ybXVsYSA9IHJhdGVyMSB+IHBvc3RfbXNlLCBkYXRhID0gcmF0ZXJfZGF0YSwgSGVzcyA9IFRSVUUpXG5cbkNvZWZmaWNpZW50czpcbiAgICAgICAgICBWYWx1ZSBTdGQuIEVycm9yIHQgdmFsdWVcbnBvc3RfbXNlIC0xLjYzNCAgICAgMC4yMDUxICAtNy45NjZcblxuSW50ZXJjZXB0czpcbiAgICBWYWx1ZSAgIFN0ZC4gRXJyb3IgdCB2YWx1ZVxuMHwxIC0zLjk5NzEgIDAuNDM5MyAgICAtOS4wOTg1XG4xfDIgLTEuMDM1MCAgMC4yMDY5ICAgIC01LjAwMjRcbjJ8MyAgMS40Njc1ICAwLjIyNjAgICAgIDYuNDkyM1xuM3w0ICA2LjIwNzcgIDEuMDMzNSAgICAgNi4wMDY3XG5cblJlc2lkdWFsIERldmlhbmNlOiAzMTkuMjQ5IFxuQUlDOiAzMjkuMjQ5IFxuIn0= -->
+<pre><code>Call:
+polr(formula = rater1 ~ post_mse, data = rater_data, Hess = TRUE)
+
+Coefficients:
+          Value Std. Error t value
+post_mse -1.634     0.2051  -7.966
+
+Intercepts:
+    Value   Std. Error t value
+0|1 -3.9971  0.4393    -9.0985
+1|2 -1.0350  0.2069    -5.0024
+2|3  1.4675  0.2260     6.4923
+3|4  6.2077  1.0335     6.0067
+
+Residual Deviance: 319.249 
+AIC: 329.249 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3RhYmxlIDwtIGNvZWYoc3VtbWFyeShvcmQyKSlcbnAgPC0gcG5vcm0oYWJzKGN0YWJsZVssIFwidCB2YWx1ZVwiXSksIGxvd2VyLnRhaWwgPSBGQUxTRSkgKiAyXG4oY3RhYmxlIDwtIGNiaW5kKGN0YWJsZSwgXCJwIHZhbHVlXCIgPSBwKSlcbmBgYCJ9 -->
+<pre class="r"><code>ctable &lt;- coef(summary(ord2))
+p &lt;- pnorm(abs(ctable[, &quot;t value&quot;]), lower.tail = FALSE) * 2
+(ctable &lt;- cbind(ctable, &quot;p value&quot; = p))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgIFZhbHVlIFN0ZC4gRXJyb3IgICB0IHZhbHVlICAgICAgcCB2YWx1ZVxucG9zdF9tc2UgLTEuNjMzNzI0ICAwLjIwNTA4MTIgLTcuOTY2MjMxIDEuNjM1ODczZS0xNVxuMHwxICAgICAgLTMuOTk3MDg2ICAwLjQzOTMxMDYgLTkuMDk4NTQwIDkuMTU1Mzk2ZS0yMFxuMXwyICAgICAgLTEuMDM0OTkxICAwLjIwNjg5OTcgLTUuMDAyMzc5IDUuNjYyNzE5ZS0wN1xuMnwzICAgICAgIDEuNDY3NTAxICAwLjIyNjAzODggIDYuNDkyMjUwIDguNDU2MzU3ZS0xMVxuM3w0ICAgICAgIDYuMjA3NzAwICAxLjAzMzQ2MzMgIDYuMDA2Njk2IDEuODkzNDE3ZS0wOVxuIn0= -->
+<pre><code>             Value Std. Error   t value      p value
+post_mse -1.633724  0.2050812 -7.966231 1.635873e-15
+0|1      -3.997086  0.4393106 -9.098540 9.155396e-20
+1|2      -1.034991  0.2068997 -5.002379 5.662719e-07
+2|3       1.467501  0.2260388  6.492250 8.456357e-11
+3|4       6.207700  1.0334633  6.006696 1.893417e-09</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJpbnQoJ2V4cChjb2VmZmljaWVudCBvZiBwb3N0X21zZSknKVxuYGBgIn0= -->
+<pre class="r"><code>print('exp(coefficient of post_mse)')</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiZXhwKGNvZWZmaWNpZW50IG9mIHBvc3RfbXNlKVwiXG4ifQ== -->
+<pre><code>[1] &quot;exp(coefficient of post_mse)&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXhwKGNvZWYob3JkMikpXG5gYGAifQ== -->
+<pre class="r"><code>exp(coef(ord2))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIHBvc3RfbXNlIFxuMC4xOTUyMDEzIFxuIn0= -->
+<pre><code> post_mse 
+0.1952013 </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyMgaW1wb3J0cwoKYGBge3J9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KGxtZTQpCmxpYnJhcnkobG1lclRlc3QpCmBgYAoKIyMgbmVzdGVkIG1vZGVsIGNvbXBhcmlzb24KCmBgYHtyfQpkIDwtIHJlYWRfY3N2KCcuL3Bob3RvZHJhd190cmFjaW5nLmNzdicpICU+JQogIG11dGF0ZSh0cmFjaW5nX2l0ZW0gPSBmYWN0b3IodHJhY2luZ19pdGVtLCBsZXZlbHMgPSBjKCd0aGlzIHNxdWFyZScsICd0aGlzIHNoYXBlJywgJ3RoaXMgY2lyY2xlJykpLCAKICAgICAgICAgY29uZGl0aW9uID0gZmFjdG9yKGNvbmRpdGlvbiwgbGV2ZWxzID0gYygnUycsICdXJywgJ1AnKSkpIAogICMgbXV0YXRlKGFnZSA9IHNjYWxlKGFnZSwgY2VudGVyID0gVFJVRSwgc2NhbGUgPSBGQUxTRSksCiAgIyAgICAgICAgcG9zdF9tc2UgPSBzY2FsZShwb3N0X21zZSwgY2VudGVyID0gVFJVRSwgc2NhbGUgPSBGQUxTRSkpCm0xID0gbG1lcihwb3N0X21zZSB+IGFnZSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKbTIgPSBsbWVyKHBvc3RfbXNlIH4gYWdlICsgKDEgfCBzZXNzaW9uX2lkKSArICgxIHwgdHJhY2luZ19pdGVtKSwgZGF0YT1kKQptMyA9IGxtZXIocG9zdF9tc2UgfiBhZ2UgKyB0cmFjaW5nX2l0ZW0gKyAoMSB8IHNlc3Npb25faWQpLCBkYXRhPWQpCm00ID0gbG1lcihwb3N0X21zZSB+IGFnZSArICgxIHwgc2Vzc2lvbl9pZCkgKyAoMSArIGFnZSB8IHRyYWNpbmdfaXRlbSksIGRhdGE9ZCkKYW5vdmEobTEsIG0yLCBtMywgbTQpCmBgYAoKIyMgTG9vayBhdCBpbnRlcmFjdGlvc24gYmV0d2VlbiBhZ2UgYW5kIHRyYWNpbmcgaXRlbQoKYGBge3J9CiMgY29udHJhc3RzKGQkdHJhY2luZ19pdGVtKSA8LSBjb250ci50cmVhdG1lbnQoMywgYmFzZSA9IDEpCiMgc3VtbWFyeShsbWVyKHBvc3RfbXNlIH4gYWdlICogdHJhY2luZ19pdGVtICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKSkKYGBgCgojIyBMb29rIGF0IGJlc3QgbW9kZWwgCgpgYGB7cn0Kc3VtbWFyeShtMykKYGBgCgojIyBWaXN1YWxpemUgZGF0YQoKYGBge3J9CmQgJT4lCiAgZ2F0aGVyKHJlZ2lzdHJhdGlvbiwgdmFsLCBwcmVfbXNlLCBwb3N0X21zZSkgJT4lCiAgZ2dwbG90KGFlcyh4ID0gYWdlLCB5ID0gdmFsLCBjb2xvciA9IHRyYWNpbmdfaXRlbSkpICsKICAgIGdlb21fcG9pbnQoKSArCiAgICBnZW9tX3Ntb290aChtZXRob2QgPSAnbG0nKSArCiAgICBmYWNldF93cmFwKH4gcmVnaXN0cmF0aW9uKSArCiAgICB0aGVtZV9idygpICsKICAgIHRoZW1lKGFzcGVjdC5yYXRpbyA9IDEpIApgYGAKCmBgYHtyfQpkICU+JQogIGdhdGhlcih0cmFuc2Zvcm1hdGlvbiwgdmFsLCByb3RhdGUsIHRyYW5zbGF0ZSwgc2NhbGUpICU+JQogIGdncGxvdChhZXMoeCA9IGFnZSwgeSA9IHZhbCwgY29sb3IgPSB0cmFjaW5nX2l0ZW0pKSArCiAgICBnZW9tX3BvaW50KCkgKwogICAgZ2VvbV9zbW9vdGgobWV0aG9kID0gJ2xtJykgKwogICAgZmFjZXRfd3JhcCh+IHRyYW5zZm9ybWF0aW9uKSArCiAgICB0aGVtZV9idygpICsKICAgIHRoZW1lKGFzcGVjdC5yYXRpbyA9IDEpICsKICAgIHlsaW0oLTAuMDUsIDAuNCkKCmBgYAoKYGBge3J9Cm0xID0gbG1lcihjb3JyZWN0IH4gYWdlICsgY29uZGl0aW9uICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKQptMiA9IGxtZXIoY29ycmVjdCB+IGFnZSArIGNvbmRpdGlvbiArICgxIHwgdHJhY2luZ19pdGVtKSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKI20zID0gbG1lcihjb3JyZWN0IH4gYWdlICsgdHJhY2luZ19pdGVtICsgcG9zdF9tc2UgKyBwcmVfbXNlICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKQojbTQgPSBsbWVyKGNvcnJlY3QgfiBwb3N0X21zZSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKYW5vdmEobTEsIG0yKQpgYGAKYGBge3J9CnN1bW1hcnkobTQpCnN1bW1hcnkoZCRjb3JyZWN0KQpgYGAKCkV4YW1pbmUgaG93IHRoZSBzaGFwZSBlcnJvciBhbmQgc3BhdGlhbCBlcnJvciB3b3VsZCBwcmVkaWN0IGh1bWFuIGp1ZGdtZW50cwpgYGB7cn0KbGlicmFyeShsbWU0KQpyYXRlcl9kYXRhIDwtIHJlYWQuY3N2KCcuL3Bob3RvZHJhd19zdW1tYXJ5LmNzdicpCmxtX3JhdGUgPSBsbShmb3JtdWxhPXJhdGVyMSB+IHNwYXRpYWwgKyBwb3N0X21zZSwgZGF0YT1yYXRlcl9kYXRhKQpzdW1tYXJ5KGxtX3JhdGUpCmBgYAoKYGBge3J9CmdncGxvdChyYXRlcl9kYXRhLCBhZXMoc3BhdGlhbCwgcmF0ZXIxLCBjb2xvcj10cmFjaW5nX2l0ZW0pKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kPSJsbSIpICsKICBnZW9tX3BvaW50KHNpemU9MykgKwogIHRoZW1lX2J3KCkgKyAKICB4bGFiKCJzcGF0aWFsIGVycm9yIikgKwogIHlsYWIoImh1bWFuIGp1ZGdtZW50IikgKwogIGdndGl0bGUoJ1NwYXRpYWwgRXJyb3IgdnMuIEh1bWFuIGp1ZGdtZW50JykKYGBgCgpgYGB7cn0KZ2dwbG90KHJhdGVyX2RhdGEsIGFlcyhwb3N0X21zZSwgcmF0ZXIxLCBjb2xvcj10cmFjaW5nX2l0ZW0pKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kPSJsbSIpICsKICBnZW9tX3BvaW50KHNpemU9MykgKwogIHRoZW1lX2J3KCkgKyAKICB4bGFiKCJzcGF0aWFsIGVycm9yIikgKwogIHlsYWIoImh1bWFuIGp1ZGdtZW50IikgKwogIGdndGl0bGUoJ1NwYXRpYWwgRXJyb3IgdnMuIEh1bWFuIGp1ZGdtZW50JykKYGBgCgpgYGB7cn0KbGlicmFyeShNQVNTKQpyYXRlcl9kYXRhIDwtIHJlYWQuY3N2KCcuL3Bob3RvZHJhd19zdW1tYXJ5LmNzdicpCnJhdGVyX2RhdGEkcmF0ZXIxIDwtIGZhY3RvcihyYXRlcl9kYXRhJHJhdGVyMSwgbGV2ZWxzID0gYygiMCIsICIxIiwgIjIiLCAiMyIsICI0IiksIG9yZGVyZWQ9VFJVRSkKcmF0ZXJfZGF0YSRwb3N0X21zZSA9IHNjYWxlKHJhdGVyX2RhdGEkcG9zdF9tc2UpCnJhdGVyX2RhdGEkc3BhdGlhbCA9IHNjYWxlKHJhdGVyX2RhdGEkc3BhdGlhbCkKb3JkX20gPC0gcG9scihyYXRlcjEgfiBzcGF0aWFsICsgcG9zdF9tc2UsIHJhdGVyX2RhdGEsIEhlc3M9VFJVRSkKCnN1bW1hcnkob3JkX20pCmN0YWJsZSA8LSBjb2VmKHN1bW1hcnkob3JkX20pKQpwIDwtIHBub3JtKGFicyhjdGFibGVbLCAidCB2YWx1ZSJdKSwgbG93ZXIudGFpbCA9IEZBTFNFKSAqIDIKKGN0YWJsZSA8LSBjYmluZChjdGFibGUsICJwIHZhbHVlIiA9IHApKQoKcHJpbnQoJ2V4cChjb2VmZmljaWVudCBvZiBzcGF0aWFsIGFuZCBwb3N0X21zZSknKQpleHAoY29lZihvcmRfbSkpCgpgYGAKCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyMgaW1wb3J0cwoKYGBge3J9CmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KGxtZTQpCmxpYnJhcnkobG1lclRlc3QpCmBgYAoKIyMgbmVzdGVkIG1vZGVsIGNvbXBhcmlzb24KCmBgYHtyfQpkIDwtIHJlYWRfY3N2KCcuL3Bob3RvZHJhd190cmFjaW5nLmNzdicpICU+JQogIG11dGF0ZSh0cmFjaW5nX2l0ZW0gPSBmYWN0b3IodHJhY2luZ19pdGVtLCBsZXZlbHMgPSBjKCd0aGlzIHNxdWFyZScsICd0aGlzIHNoYXBlJywgJ3RoaXMgY2lyY2xlJykpLCAKICAgICAgICAgY29uZGl0aW9uID0gZmFjdG9yKGNvbmRpdGlvbiwgbGV2ZWxzID0gYygnUycsICdXJywgJ1AnKSkpIAogICMgbXV0YXRlKGFnZSA9IHNjYWxlKGFnZSwgY2VudGVyID0gVFJVRSwgc2NhbGUgPSBGQUxTRSksCiAgIyAgICAgICAgcG9zdF9tc2UgPSBzY2FsZShwb3N0X21zZSwgY2VudGVyID0gVFJVRSwgc2NhbGUgPSBGQUxTRSkpCm0xID0gbG1lcihwb3N0X21zZSB+IGFnZSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKbTIgPSBsbWVyKHBvc3RfbXNlIH4gYWdlICsgKDEgfCBzZXNzaW9uX2lkKSArICgxIHwgdHJhY2luZ19pdGVtKSwgZGF0YT1kKQptMyA9IGxtZXIocG9zdF9tc2UgfiBhZ2UgKyB0cmFjaW5nX2l0ZW0gKyAoMSB8IHNlc3Npb25faWQpLCBkYXRhPWQpCm00ID0gbG1lcihwb3N0X21zZSB+IGFnZSArICgxIHwgc2Vzc2lvbl9pZCkgKyAoMSArIGFnZSB8IHRyYWNpbmdfaXRlbSksIGRhdGE9ZCkKYW5vdmEobTEsIG0yLCBtMywgbTQpCmBgYAoKIyMgTG9vayBhdCBpbnRlcmFjdGlvc24gYmV0d2VlbiBhZ2UgYW5kIHRyYWNpbmcgaXRlbQoKYGBge3J9CiMgY29udHJhc3RzKGQkdHJhY2luZ19pdGVtKSA8LSBjb250ci50cmVhdG1lbnQoMywgYmFzZSA9IDEpCiMgc3VtbWFyeShsbWVyKHBvc3RfbXNlIH4gYWdlICogdHJhY2luZ19pdGVtICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKSkKYGBgCgojIyBMb29rIGF0IGJlc3QgbW9kZWwgCgpgYGB7cn0Kc3VtbWFyeShtMykKYGBgCgojIyBWaXN1YWxpemUgZGF0YQoKYGBge3J9CmQgJT4lCiAgZ2F0aGVyKHJlZ2lzdHJhdGlvbiwgdmFsLCBwcmVfbXNlLCBwb3N0X21zZSkgJT4lCiAgZ2dwbG90KGFlcyh4ID0gYWdlLCB5ID0gdmFsLCBjb2xvciA9IHRyYWNpbmdfaXRlbSkpICsKICAgIGdlb21fcG9pbnQoKSArCiAgICBnZW9tX3Ntb290aChtZXRob2QgPSAnbG0nKSArCiAgICBmYWNldF93cmFwKH4gcmVnaXN0cmF0aW9uKSArCiAgICB0aGVtZV9idygpICsKICAgIHRoZW1lKGFzcGVjdC5yYXRpbyA9IDEpIApgYGAKCmBgYHtyfQpkICU+JQogIGdhdGhlcih0cmFuc2Zvcm1hdGlvbiwgdmFsLCByb3RhdGUsIHRyYW5zbGF0ZSwgc2NhbGUpICU+JQogIGdncGxvdChhZXMoeCA9IGFnZSwgeSA9IHZhbCwgY29sb3IgPSB0cmFjaW5nX2l0ZW0pKSArCiAgICBnZW9tX3BvaW50KCkgKwogICAgZ2VvbV9zbW9vdGgobWV0aG9kID0gJ2xtJykgKwogICAgZmFjZXRfd3JhcCh+IHRyYW5zZm9ybWF0aW9uKSArCiAgICB0aGVtZV9idygpICsKICAgIHRoZW1lKGFzcGVjdC5yYXRpbyA9IDEpICsKICAgIHlsaW0oLTAuMDUsIDAuNCkKCmBgYAoKYGBge3J9Cm0xID0gbG1lcihjb3JyZWN0IH4gYWdlICsgY29uZGl0aW9uICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKQptMiA9IGxtZXIoY29ycmVjdCB+IGFnZSArIGNvbmRpdGlvbiArICgxIHwgdHJhY2luZ19pdGVtKSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKI20zID0gbG1lcihjb3JyZWN0IH4gYWdlICsgdHJhY2luZ19pdGVtICsgcG9zdF9tc2UgKyBwcmVfbXNlICsgKDEgfCBzZXNzaW9uX2lkKSwgZGF0YT1kKQojbTQgPSBsbWVyKGNvcnJlY3QgfiBwb3N0X21zZSArICgxIHwgc2Vzc2lvbl9pZCksIGRhdGE9ZCkKYW5vdmEobTEsIG0yKQpgYGAKYGBge3J9CnN1bW1hcnkobTQpCnN1bW1hcnkoZCRjb3JyZWN0KQpgYGAKCkV4YW1pbmUgaG93IHRoZSBzaGFwZSBlcnJvciBhbmQgc3BhdGlhbCBlcnJvciB3b3VsZCBwcmVkaWN0IGh1bWFuIGp1ZGdtZW50cwpgYGB7cn0KbGlicmFyeShsbWU0KQpyYXRlcl9kYXRhIDwtIHJlYWQuY3N2KCcuL3Bob3RvZHJhd19zdW1tYXJ5LmNzdicpCmxtX3JhdGUgPSBsbShmb3JtdWxhPXJhdGVyMSB+IHNwYXRpYWwgKyBwb3N0X21zZSwgZGF0YT1yYXRlcl9kYXRhKQpzdW1tYXJ5KGxtX3JhdGUpCmBgYAoKYGBge3J9CmdncGxvdChyYXRlcl9kYXRhLCBhZXMoc3BhdGlhbCwgcmF0ZXIxLCBjb2xvcj10cmFjaW5nX2l0ZW0pKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kPSJsbSIpICsKICBnZW9tX3BvaW50KHNpemU9MykgKwogIHRoZW1lX2J3KCkgKyAKICB4bGFiKCJzcGF0aWFsIGVycm9yIikgKwogIHlsYWIoImh1bWFuIGp1ZGdtZW50IikgKwogIGdndGl0bGUoJ1NwYXRpYWwgRXJyb3IgdnMuIEh1bWFuIGp1ZGdtZW50JykKYGBgCgpgYGB7cn0KZ2dwbG90KHJhdGVyX2RhdGEsIGFlcyhwb3N0X21zZSwgcmF0ZXIxLCBjb2xvcj10cmFjaW5nX2l0ZW0pKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kPSJsbSIpICsKICBnZW9tX3BvaW50KHNpemU9MykgKwogIHRoZW1lX2J3KCkgKyAKICB4bGFiKCJzcGF0aWFsIGVycm9yIikgKwogIHlsYWIoImh1bWFuIGp1ZGdtZW50IikgKwogIGdndGl0bGUoJ1NwYXRpYWwgRXJyb3IgdnMuIEh1bWFuIGp1ZGdtZW50JykKYGBgCgpgYGB7cn0KbGlicmFyeShNQVNTKQpyYXRlcl9kYXRhIDwtIHJlYWQuY3N2KCcuL3Bob3RvZHJhd19zdW1tYXJ5X21zZS5jc3YnKQpyYXRlcl9kYXRhJHJhdGVyMSA8LSBmYWN0b3IocmF0ZXJfZGF0YSRyYXRlcjEsIGxldmVscyA9IGMoIjAiLCAiMSIsICIyIiwgIjMiLCAiNCIpLCBvcmRlcmVkPVRSVUUpCnJhdGVyX2RhdGEkcG9zdF90cmFuID0gc2NhbGUocmF0ZXJfZGF0YSRwb3N0X3RyYW4pCnJhdGVyX2RhdGEkc3BhdGlhbCA9IHNjYWxlKHJhdGVyX2RhdGEkc3BhdGlhbCkKb3JkX20gPC0gcG9scihyYXRlcjEgfiBzcGF0aWFsICsgcG9zdF90cmFuLCByYXRlcl9kYXRhLCBIZXNzPVRSVUUpCgpzdW1tYXJ5KG9yZF9tKQpjdGFibGUgPC0gY29lZihzdW1tYXJ5KG9yZF9tKSkKcCA8LSBwbm9ybShhYnMoY3RhYmxlWywgInQgdmFsdWUiXSksIGxvd2VyLnRhaWwgPSBGQUxTRSkgKiAyCihjdGFibGUgPC0gY2JpbmQoY3RhYmxlLCAicCB2YWx1ZSIgPSBwKSkKCnByaW50KCdleHAoY29lZmZpY2llbnQgb2Ygc3BhdGlhbCBhbmQgcG9zdF90cmFuKScpCmV4cChjb2VmKG9yZF9tKSkKCmBgYApzcGxpdCB0aGUgZGF0YSBieSB0cmFjaW5nIGl0ZW1zCgpgYGB7cn0Kc3F1YXJlID0gc3Vic2V0KHJhdGVyX2RhdGEsIHRyYWNpbmdfaXRlbT09J3RoaXMgc3F1YXJlJykKb3JkX20gPC0gcG9scihyYXRlcjEgfiBzcGF0aWFsICsgcG9zdF90cmFuLCByYXRlcl9kYXRhLCBIZXNzPVRSVUUpCgpzdW1tYXJ5KG9yZF9tKQpjdGFibGUgPC0gY29lZihzdW1tYXJ5KG9yZF9tKSkKcCA8LSBwbm9ybShhYnMoY3RhYmxlWywgInQgdmFsdWUiXSksIGxvd2VyLnRhaWwgPSBGQUxTRSkgKiAyCihjdGFibGUgPC0gY2JpbmQoY3RhYmxlLCAicCB2YWx1ZSIgPSBwKSkKCnByaW50KCdleHAoY29lZmZpY2llbnQgb2Ygc3BhdGlhbCBhbmQgcG9zdF90cmFuKScpCmV4cChjb2VmKG9yZF9tKSkKYGBgCgpgYGB7cn0Kb3JkMiA8LSBwb2xyKHJhdGVyMSB+IHNwYXRpYWwsIHJhdGVyX2RhdGEsIEhlc3M9VFJVRSkKCnN1bW1hcnkob3JkMikKY3RhYmxlIDwtIGNvZWYoc3VtbWFyeShvcmQyKSkKcCA8LSBwbm9ybShhYnMoY3RhYmxlWywgInQgdmFsdWUiXSksIGxvd2VyLnRhaWwgPSBGQUxTRSkgKiAyCihjdGFibGUgPC0gY2JpbmQoY3RhYmxlLCAicCB2YWx1ZSIgPSBwKSkKCnByaW50KCdleHAoY29lZmZpY2llbnQgb2Ygc3BhdGlhbCknKQpleHAoY29lZihvcmQyKSkKCmBgYAoKYGBge3J9Cm9yZDIgPC0gcG9scihyYXRlcjEgfiBwb3N0X21zZSwgcmF0ZXJfZGF0YSwgSGVzcz1UUlVFKQoKc3VtbWFyeShvcmQyKQpjdGFibGUgPC0gY29lZihzdW1tYXJ5KG9yZDIpKQpwIDwtIHBub3JtKGFicyhjdGFibGVbLCAidCB2YWx1ZSJdKSwgbG93ZXIudGFpbCA9IEZBTFNFKSAqIDIKKGN0YWJsZSA8LSBjYmluZChjdGFibGUsICJwIHZhbHVlIiA9IHApKQoKcHJpbnQoJ2V4cChjb2VmZmljaWVudCBvZiBwb3N0X21zZSknKQpleHAoY29lZihvcmQyKSkKYGBgCgo=</div>
 
 
 
