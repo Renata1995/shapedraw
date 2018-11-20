@@ -15,8 +15,8 @@ library(lmerTest)
 
 ```{r}
 d <- read_csv('./photodraw_tracing.csv') %>%
-  mutate(tracing_item = factor(tracing_item, levels = c('this square', 'this shape', 'this circle')), 
-         condition = factor(condition, levels = c('S', 'W', 'P'))) 
+  mutate(tracing_item = factor(tracing_item, levels = c('this square', 'this shape', 'this circle')))
+         #condition = factor(condition, levels = c('S', 'W', 'P'))) 
   # mutate(age = scale(age, center = TRUE, scale = FALSE),
   #        post_mse = scale(post_mse, center = TRUE, scale = FALSE))
 m1 = lmer(post_mse ~ age + (1 | session_id), data=d)
@@ -43,7 +43,7 @@ summary(m3)
 
 ```{r}
 d %>%
-  gather(registration, val, pre_mse, post_mse) %>%
+  gather(registration, val, pre_tran, post_tran) %>%
   ggplot(aes(x = age, y = val, color = tracing_item)) +
     geom_point() +
     geom_smooth(method = 'lm') +
@@ -107,7 +107,7 @@ ggplot(rater_data, aes(post_mse, rater1, color=tracing_item)) +
 
 ```{r}
 library(MASS)
-rater_data <- read.csv('./photodraw_summary_mse.csv')
+rater_data <- read.csv('./photodraw_summary_ncc.csv')
 rater_data$rater1 <- factor(rater_data$rater1, levels = c("0", "1", "2", "3", "4"), ordered=TRUE)
 rater_data$post_tran = scale(rater_data$post_tran)
 rater_data$spatial = scale(rater_data$spatial)
@@ -126,7 +126,7 @@ split the data by tracing items
 
 ```{r}
 square = subset(rater_data, tracing_item=='this square')
-ord_m <- polr(rater1 ~ spatial + post_tran, rater_data, Hess=TRUE)
+ord_m <- polr(rater1 ~ spatial + post_tran, square, Hess=TRUE)
 
 summary(ord_m)
 ctable <- coef(summary(ord_m))
@@ -136,6 +136,33 @@ p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
 print('exp(coefficient of spatial and post_tran)')
 exp(coef(ord_m))
 ```
+
+```{r}
+shape = subset(rater_data, tracing_item=='this shape')
+ord_m <- polr(rater1 ~ spatial + post_tran, shape, Hess=TRUE)
+
+summary(ord_m)
+ctable <- coef(summary(ord_m))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p))
+
+print('exp(coefficient of spatial and post_tran)')
+exp(coef(ord_m))
+```
+
+```{r}
+circle = subset(rater_data, tracing_item=='this circle')
+ord_m <- polr(rater1 ~ spatial + post_tran, circle, Hess=TRUE)
+
+summary(ord_m)
+ctable <- coef(summary(ord_m))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p))
+
+print('exp(coefficient of spatial and post_tran)')
+exp(coef(ord_m))
+```
+
 
 ```{r}
 ord2 <- polr(rater1 ~ spatial, rater_data, Hess=TRUE)
@@ -160,5 +187,20 @@ p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
 
 print('exp(coefficient of post_mse)')
 exp(coef(ord2))
+```
+```{r}
+rater_data <- read.csv('./photodraw_summary_f1.csv')
+rater_data$rater1 <- factor(rater_data$rater1, levels = c("0", "1", "2", "3", "4"), ordered=TRUE)
+rater_data$post_tran = scale(rater_data$post_tran)
+rater_data$spatial = scale(rater_data$spatial)
+ord_m <- polr(rater1 ~ spatial + post_tran, rater_data, Hess=TRUE)
+
+summary(ord_m)
+ctable <- coef(summary(ord_m))
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+(ctable <- cbind(ctable, "p value" = p))
+
+print('exp(coefficient of spatial and post_tran)')
+exp(coef(ord_m))
 ```
 

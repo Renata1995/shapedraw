@@ -16,7 +16,7 @@ import torch as th
 from numpy import inf,max
 
 class _Registration(object):
-	def __init__(self, dtype=th.float32, device='cpu', verbose=True):
+	def __init__(self, dtype=th.float32, device='cpu', verbose=False):
 		super(_Registration, self).__init__()
 		self._dtype = dtype
 		self._device = device
