@@ -79,7 +79,7 @@ class RigidTransformation(_Transformation):
         self._grid = th.cat((self._grid, th.ones(*[list(image_size) + [1]], dtype=dtype, device=device)), self._dim)
 
         if self._dim == 2:
-            self.trans_parameters = Parameter(th.Tensor([0, 0, 0])) # phi tx ty
+            self.trans_parameters = Parameter(th.Tensor([0, 0, 0, 1, 1])) # phi tx ty sx sy
 
             self._compute_displacement = self._compute_displacement_2d
         else:
@@ -91,6 +91,8 @@ class RigidTransformation(_Transformation):
         trans_matrix = th.diag(th.ones(3, dtype=self._dtype, device=self._device))
         trans_matrix[0, 2] = self.trans_parameters[1]
         trans_matrix[1, 2] = self.trans_parameters[2]
+        trans_matrix[0, 0] = self.trans_parameters[3]
+        trans_matrix[1, 1] = self.trans_parameters[4]
 
         rot_scale_matrix = th.zeros(3, 3, dtype=self._dtype, device=self._device)
         rot_scale_matrix[0, 0] = th.cos(self.trans_parameters[0])
@@ -100,6 +102,7 @@ class RigidTransformation(_Transformation):
         rot_scale_matrix[2, 2] = 1
 
         matrix = th.mm(trans_matrix, rot_scale_matrix)[0:2, :]
+        scale = th.sqrt( ((self.trans_parameters[3] - 1) ** 2 + (self.trans_parameters[4]-1) ** 2) *0.5 )
 
         return th.mm(self._grid.view(np.prod(self._image_size).tolist(), self._dim + 1), matrix.t()) \
                    .view(self._image_size.tolist()[0], self._image_size.tolist()[1], self._dim) - self._grid[:, :, :2]

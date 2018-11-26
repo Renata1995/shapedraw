@@ -28,7 +28,7 @@ class _Regulariser(th.nn.modules.Module):
         self._pixel_spacing = pixel_spacing
         self.name = "parent"
 
-    def SetWeight(self, weight):
+    def set_weight(self, weight):
         self._weight = weight
 
     # conditional return
@@ -122,6 +122,7 @@ class DiffusionRegulariser(_Regulariser):
             self._regulariser = self._l2_regulariser_3d  # 3d regularisation
 
     def _l2_regulariser_2d(self, displacement):
+        # displacement: img_size * img_size * 2
         dx = (displacement[1:, 1:, :] - displacement[:-1, 1:, :]).pow(2) * self._pixel_spacing[0]
         dy = (displacement[1:, 1:, :] - displacement[1:, :-1, :]).pow(2) * self._pixel_spacing[1]
 

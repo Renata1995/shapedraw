@@ -55,23 +55,18 @@ def make_svg_list(stroke_recs):
     grab sample drawing's strokes and make a list of svg strings from it
     '''
     svg_list = []
-    for single_stroke in stroke_recs:
-        svg_string = single_stroke['svg']
+    for strec in stroke_recs:   
+        svg_string = strec['svg']       
         svg_list.append(svg_string)
-
     return svg_list
 
 
 def render_and_save(Verts,
                     Codes,
-                    out_path,
+                    outpath,
                     line_width=5,
                     imsize=3,
-                    canvas_size=809,
-                    session_id='SESSION_ID',
-                    age='AGE',
-                    trial_num='TRIAL_NUM',
-                    category='CATEGORY'):
+                    canvas_size=809):
     '''
     input:
         line_width: how wide of strokes do we want? (int)
@@ -113,14 +108,7 @@ def render_and_save(Verts,
 
 
     ## save out as png
-    ## maybe to make it not render every single thing, use plt.ioff
-    if not os.path.exists(out_path):
-        os.makedirs(out_path)
-    fname = '{}.png'.format(category)
-    filepath = os.path.join(out_path, fname)
-    print 'fpath', filepath
-
-    fig.savefig(filepath, bbox_inches='tight', pad_inches=0.0)
+    fig.savefig(outpath, bbox_inches='tight', pad_inches=0.0)
     plt.close(fig)
 
 
