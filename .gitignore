@@ -121,4 +121,5 @@ venv.bak/
 .idea
 .zip
 .html
+*/node_modules
 
