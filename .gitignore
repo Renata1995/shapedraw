@@ -114,6 +114,9 @@ venv.bak/
 
 # text
 *.txt
-
+*.json
+*.csv
 .DS_Store
+*/.idea
+.idea
 
