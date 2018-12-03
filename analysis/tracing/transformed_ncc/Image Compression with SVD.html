@@ -1,0 +1,561 @@
+<html><head>
+
+
+<title>Image Compression with SVD</title><!-- put keywords here --->
+<meta name="keywords" content="SVD"></head>
+<body bgcolor="#ffffff">
+
+<center>
+<h2>Image Compression with SVD</h2>
+</center>
+<br><br>
+James Chen<br>
+ECS 289K Scientific Computation.<br>
+Dec. 13, 2000<br>
+<br>
+
+<hr>
+
+
+<!-- ------------------------>
+<!-- Intro		-->
+<!-- ------------------------>
+<center><h3>Introduction</h3></center>
+
+<dd>The purpose of this project to demonstrate the usage of Singular Value 
+Decomposition (SVD) <a href="#Golub96">[Golub 96]</a> <a href="#textbook">
+[Higham &amp; Highman, 00]</a> in Image Compression applications.  This report 
+consists of several sections that discuss different aspects of the SVD-based
+image compression scheme.
+First, a
+straight-forward compression and decompression scheme will be used to show 
+the basic idea of reducing storage requirement with SVD.  Second, various
+blcok-size will be tested on the same image to compare their effects on the
+quality of the compression.  Third, a rank selection scheme that is
+adaptive to the complexity of the image is introduced and discussed.  
+Possible enhancements and drawbacks of SVD-based image compression
+scheme are presented in the conclusion.
+
+
+<br><br><br>
+
+
+
+<!-- ------------------------>
+<!-- SVD and Image Compression		-->
+<!-- ------------------------>
+<center><h3>SVD and Image Compression</h3></center>
+</dd><dd>Several SVD-based image coding schemes can be found in <a href="#Yang95"> [Yang &amp; Lu 95]
+</a> <a href="#McGoldrick95"> [McGoldrick, Dowling, &amp; Bury 95]</a>  
+<a href="#Waldemar97"> [Waldemar &amp; Ramstad 97]</a>  
+<a href="#Sandberg00"> [Sandberg 00]</a>
+<a href="#Arnold00"> [Arnold 00]</a>.
+The basic concept is to represent an image with size <i><b>m</b></i> by <i><b>n</b></i>
+ as a two-dimentional <i><b>m</b></i> by <i><b>n</b></i> matrix.  SVD is then applied to
+this matrix to obtain the <b>U</b>, <b>S</b>, and <b>V</b> matrices. <b>S</b> is a diagnoal
+<i><b>m</b></i> by <i><b>n</b></i> matrix whose number of non-zero elements on
+the diagnoal determine the rank of the original matrix.  The fundamental concept of
+the SVD-based image compression scheme is to use a smaller number of rank to
+approximate the original matrix.  This operation can be expressed in the following equations
+(from the lecture notes):
+<br>
+<pre>Original Image: 	<b>A = USV<sup>H</sup></b>,
+			where <b>U</b> is <b><i>m</i></b> by <b><i>n</i></b>,
+			      <b>V</b> is <b><i>n</i></b> by <b><i>n</i></b>,
+			      and <b>S</b> = 
+			      <b>diag(<i>r<sub>1</sub></i>, <i>r<sub>2</sub></i>,...,<i>r<sub>k</sub></i>,0,...,0)</b>
+
+Re-constructed Image:  <b>A1 = US1V<sup>H</sup></b>,
+			where <b>U</b> is <b><i>m</i></b> by <b><i>k1</i></b>,
+			      <b>V</b> is <b><i>k1</i></b> by <b><i>n</i></b>,
+			      and <b>S1</b> = 
+			      <b>diag(<i>r<sub>1</sub></i>, <i>r<sub>2</sub></i>,...,<i>r<sub>k1</sub></i>)</b>
+
+			and
+		        <b>||A - A1||<sub>2</sub></b> = <b><i>r<sub>k1 + 1</sub></i></b>
+</pre>
+<br><br>
+Quality of the compression is measured in term of Peak Signal to Noise Ratio
+<a href="#Jain89">[Jain 89]</a>, which is defined as:
+<br><br>
+<pre>			<b>PSNR = 10 log<sub>10</sub>((max. range)<sup>2</sup> / Root Mean Square Error )</b>	
+</pre>
+<br>
+
+
+</dd><dd>The popular "Lena" image (512 x 512, gray scale)
+is tested for the compression scheme described above.  Figure 1 shows the
+results of the compression with different ranks used for the re-constructed images.  Figure 2 shows
+the absolute difference between the original image and the re-constructed images.<br><br>
+
+<center>
+Figure 1. The results of using different ranks to approximate "Lena".<br><br>
+<img src="svdcompression_files/Fig_1.png"><br><br><br><br>
+
+Figure 2. The absolute difference between the original and the re-constructed images.<br><br>
+<img src="svdcompression_files/Fig_2.png"><br><br><br>
+</center>
+
+</dd><dd>If the original image is square, then the matrix representation would
+require a <b><i>m<sup>2</sup></i></b> storage space.  Applying SVD on the
+original matrix and use only <b><i>k</i></b> singular values 
+results in a <b><i>2mk + k</i></b> staorage space.  
+In order to achieve the goal of compression, the <b><i>k</i></b> used for the
+re-constructed image would have to be smaller than <b><i>m<sup>2</sup> / (1+2m)</i></b>.
+In the case of "Lena", the rank used has to be smaller than 255.
+
+<br><br><br><br>
+
+
+
+
+<!-- ------------------------>
+<!-- Splitting Image into Smaller Blocks		-->
+<!-- ------------------------>
+<center><h3>Splitting Image into Smaller Blocks and Adaptive Rank Selection</h3></center>
+</dd><dd>Instead of compressing the whole image at once, all popular image compression techniques
+work on the sub-block of original image.  The purpose of this practice is toexploit the
+uneven complexity of the original image.  If a portion of the image is simple, then only a 
+smaller of singular values needs to be used to achieve satisfactory approximation.  
+On the other hand, if the image is cimplex, then more singular values would have to be 
+used in order to maintain the image quality.  A simple way to adaptively select the appropriate
+ranks to be used in each sub-block is to specify the percentage of the sum of the singular values 
+insteads of a fixed number.  This scheme is derived from the observation of the distribution of the
+singular values in each sub-block.  When a sub-block contains complex image, its singular values are 
+more "spreaded out" than the one that contain a simple image.  Thus if we specify a centain percentage 
+of the sum to be used, a higer number of ranks will be used for a complex sub-block than
+the one with simple image.  This scheme can be expreseed as:
+<br><br><pre>Rank <b><i>k1</i></b> used for each sub-block:   
+					<b><i>(r<sub>1</sub></i>+<i>r<sub>2</sub></i>+...+<i>r<sub>k1</sub>)</i></b>
+		Specified Percentage =------------------
+					<b><i>(r<sub>1</sub></i>+<i>r<sub>2</sub></i>+...+<i>r<sub>k</sub>)</i></b>
+</pre>
+ 
+<br>
+</dd><dd>Figure 3 shows the results of using a 64 by 64 block-size and the percentage of 70 to 85.  
+Figure 4 shows the results of using the same percentages but with a 8 by 8 block-size.<br><br>
+<center>
+Figure 3. The results of using a 64 by 64 block-size.<br><br>
+<img src="svdcompression_files/Fig_3.png"><br><br>
+
+<br>Figure 4. The absolute difference for the 64-by-64 block-size.<br><br>
+<img src="svdcompression_files/Fig_4.png"><br><br>
+
+<br>Figure 5. The results of using a 8 by 8 block-size.<br><br>
+<img src="svdcompression_files/Fig_5.png"><br><br>
+
+<br>Figure 6. The absolute difference for the 8-by-8 block-size.<br><br>
+<img src="svdcompression_files/Fig_6.png"><br><br>
+</center>
+
+<br><br><br>
+</dd><dd>To see the effect of this rank selection scheme, we can observe the fact that 
+the ranks used for each sub-block in both cases are indeed correlated with
+the complexity of the image.  The ranks used for the 64-by-64 cases is listed below:<br><br>
+<pre>
+	Ranks used for percentage = 7.750000e+01:
+
+
+	RUsed =
+
+     1     5     2     4     3     1     3     8
+     2     7    10     8     4     5     6     7
+     1     5    12    10     6     5     7     2
+     1     6    11    13     5     8     5     1
+     2    12    15    11     4     8     3     2
+     2    14    13     9     5     8     1     1
+     3    14    13    11     2     6     3     4
+     3    15    15     6     1     3     4     7
+
+
+
+
+	Ranks used for percentage = 70:
+
+	RUsed =
+
+     1     1     1     2     2     1     2     5
+     1     2     5     4     3     3     4     5
+     1     3     7     6     3     3     5     1
+     1     3     8     9     3     5     3     1
+     1     9    12     8     3     5     2     1
+     1    10    10     5     3     5     1     1
+     2    11    10     6     1     4     2     3
+     2    10    12     4     1     2     3     5
+</pre>
+
+<br><br>
+</dd><dd>Another interesting observation that can be made from Fig. 3 and 6 is that even with
+the same percentage used, the image quality with the 8-by-8 block-szie is much better than the
+image with the 64-by-64 block-size.  This effect can be verified from the following table
+which shows the average ranks used and the average percenatge of the ranks used for
+both cases.  Notices that in the 8-by-8 case, a higher percentage of ranks were
+used.
+
+<br><br><pre>64-by-64 block-size:
+===&gt;    Percentage of Singular     |    Average Ranks   | Avg. Percentage of
+        Values Sum                         Used           Ranks Used.
+                85                      10.500000          0.164062
+                81.25                   7.968750           0.124512
+                77.5                    6.156250           0.096191
+                73.75                   4.937500           0.077148
+                70                      4.046875           0.063232
+
+
+8-by-8 block-size:
+===&gt;    Percentage of Singular     |    Average Ranks   | Avg. Percentage of
+        Values Sum                         Used           Ranks Used.
+                85                      1.540039           0.192505     
+                81.25                   1.371582           0.171448     
+                77.5                    1.256104           0.157013     
+                73.75                   1.176514           0.147064
+                70                      1.115234           0.139404    
+</pre>
+
+<br><br><br><br>
+
+
+
+<!-- ------------------------>
+<!-- Rank-one update		-->
+<!-- ------------------------>
+<center><h3>Rank-One Update</h3></center>
+</dd><dd>A further reduction in the ranks used can be achieved by subtracting the mean of the
+original image before perfromaning the SVD.  The mean is then added back to the SVD
+construction to obtain the the re-constructed image.  This process can be expressed in 
+the following eqaution:
+<br><br><pre>Original Image: 	<b>A - mean = USV<sup>H</sup></b>,
+			where <b>U</b> is <b><i>m</i></b> by <b><i>n</i></b>,
+			      <b>V</b> is <b><i>n</i></b> by <b><i>n</i></b>,
+			      and <b>S</b> = 
+			      <b>diag(<i>r<sub>1</sub></i>, <i>r<sub>2</sub></i>,...,<i>r<sub>k</sub></i>,0,...,0)</b>
+
+Re-constructed Image:  <b>A1 = US1V<sup>H</sup> + mean</b>,
+			where <b>U</b> is <b><i>m</i></b> by <b><i>k1</i></b>,
+			      <b>V</b> is <b><i>k1</i></b> by <b><i>n</i></b>,
+			      and <b>S1</b> = 
+			      <b>diag(<i>r<sub>1</sub></i>, <i>r<sub>2</sub></i>,...,<i>r<sub>k1</sub></i>)</b>
+
+</pre><br><br>
+
+</dd><dd>This process is called the "Rank-1 Update", it essentially compacts
+the distrubution of the singular values.  The next effect of this process is that
+fewer ranks will be needed to achieve a satisfactory compression.  The following table
+shows the average ranks and the percentage of ranks used for the 8-by-8 block-size
+compression with rank-1 update.  Notices that when the percentage of singular
+values sum is 73.75 and 70, only 1 rank is used for all sub-blocks.  This is the
+highest ratio of compression that can be achieved.  The results of applying 
+rank-1 update with the same parameters used in fig. 5 is shown in 
+Figure 7 and 8.<br>
+<br><br><pre>8-by-8 block-size:
+===&gt;    Percentage of Singular     |    Average Ranks   | Avg. Percentage of
+        Values Sum                         Used           Ranks Used.
+                85                      2.311279           0.288910
+                81.25                   1.371582           0.171448                     
+                77.5                    1.015137           0.126892     
+                73.75                   1.000000           0.125000     
+                70                      1.000000           0.125000
+
+m = 0.3884       &lt;---- mean 
+</pre><br><br>
+
+<center>
+<br>Figure 7. The results of using a 8 by 8 block-size with rank-1 update.<br><br>
+<img src="svdcompression_files/Fig_7.png"><br><br><br>
+
+<br>Figure 8. The absolute difference for the 8-by-8 block-size with rank-1 update.<br><br>
+<img src="svdcompression_files/Fig_8.png"><br><br><br>
+</center>
+
+<br><br><br><br>
+
+
+
+
+<!-- ------------------------>
+<!-- 	Conclusion	-->
+<!-- ------------------------>
+<center><h3>Future Work and Conclusion</h3></center>
+</dd><dd>A more effective use of adaptive rank scheme can be achieved by dynamically select 
+the block size to be compressed.  This can be done by either keep sub-dividing the original 
+image until an optimal blcok size is found <a name="#Arnold00">[Arnold 00]</a>, or by
+merging smaller blocks together to form a bigger block.  Either approaches would require 
+more computation time.  The benefit of performing this technique would have to be 
+investigated further.  An major drawback of using SVD for image compression is that fact 
+that the <b>U</b> and <b>V</b> will have to stored together with the singular values.
+This is the major reason why SVD is not a popular image compression tool. 
+<a href="#Aase99">[Aase,  Husoy, &amp; Waldemar 99]</a>  But for the purpose of demonstarting 
+one possible application of SVD, this project served the purpose well.  Merging two or
+more smaller blocks together is actually a very interesing problem.  If we could find a
+efficient technique
+to obtain the SVD of the bigger blocks simply from the SVD's of the smaller
+blocks, it would have great potentials for many applications behind image compression.
+This would be a very challenging task.
+
+
+<br><br><br><br>
+
+
+
+
+<hr>
+<!-- ------------------------>
+<!-- 	Annotated Bibliography-->
+<!-- ------------------------>
+<center><h3>Bibliography</h3></center>
+
+<br><a name="Arnold00"><b>[Arnold 00]</b>
+An Investigation into using Singular Value Decomposition as a method of Image 
+Compression.<br>
+http://www.haroldthecat.f2s.com/project/<br>
+
+<br></a><a name="Aase99"><b>[Aase,  Husoy, &amp; Waldemar 99]</b>
+Aase, S.O.; Husoy, J.H.; Waldemar, P., A critique of SVD-based image coding 
+systems. <i>Proceedings of the 1999 IEEE International Symposium on 
+Circuits and Systems VLSI</i>, vol.4, pp.13-16, IEEE Press, Piscataway, NJ.<br>
+
+
+
+<br></a><a name="Golub96"><b>[Golub &amp; Van Loan, 96]</b> 
+Golub, G. H. &amp; Van Loan, C. F., <i>Matrix Computations, Third Ed.</i> 
+John Hopkins University Press.<br>
+
+
+<br></a><a name="textbook"><b>[Heath, 97]</b> Heath, M. T., 
+<i>Scientific Computing, An 
+Introductory Survey.</i> McGraw-Hill, 1997. <br>
+
+
+<br></a><a name="Higham00"><b>[Higham &amp; Highman, 00]</b> Highman, D. J. &amp; Highman, 
+N. J., <i>Matlab Guide.</i> SIAM, 2000. <br>
+
+<br></a><a name="Jain89"><b>[Jain 89]</b>Jain, A. K. <i>Fundamentals of Digital Image 
+Processing</i>.  Prentice Hall, Englewood Cliffs, NJ, 1989.<br>
+
+<br></a><a name="McGoldrick95"><b>[McGoldrick, Dowling, &amp; Bury 95]</b>
+McGoldrick, C.S.; Dowling, W.J.; Bury, A. Image coding using the singular value
+decomposition and vector quantization. <i>Fifth International Conference on Image 
+Processing and its Applications</i>, p.296-300. IEE, London, UK.<br>
+
+<br></a><a name="Sandberg00"><b>[Sandberg 00]</b>
+Sandberg, K. Introduction to image processing in Matlab 1.<br>
+http://amath.colorado.edu/appm/courses/4720/2000Spr/
+Labs/Worksheets/Matlab_tutorial/matlabimpr.html.<br>
+
+<br></a><a name="Waldemar97"><b>[Waldemar &amp; Ramstad 97]</b>
+Waldemar, P. &amp; Ramstad, T.A. Hybrid KLT-SVD image compression. 
+<i>1997 IEEE International Conference on Acoustics, Speech, and Signal 
+Processing</i>, vol. 4, pp. 2713-2716, IEEE Comput. Soc. Press, 
+Los Alamitos, CA.<br>
+
+<br></a><a name="Yang95"><b>[Yang &amp; Lu 95]</b>
+Yang, J.-F. &amp; Lu, C.-L., Combined techniques of singular value decomposition and
+vector quantization for image coding. 
+<i>IEEE Transactions on Image Processing</i>, vol.4, no.8,  p.1141-1146, 
+Aug. 1995.<br>
+
+<br><br><br><br>
+<!-- ------------------------>
+<!-- 	Appendix-->
+<!-- ------------------------>
+</a><hr><center><h3><a name="Yang95">Matlab Scripts</a></h3></center>
+
+<pre><a name="Yang95">% function SDVCompression_3(F, BlockSize, SP, EP)
+% Image Compression,            take out the mean
+%                       
+%
+%               F:  input file, a 2-D array
+%               BlockSize: 64, 32, 16, 8
+%               SP: Staring percentage of singular values AREA used
+%               EP: Ending percentage of singular values AREA used
+%               SP &lt; EP
+%
+%             
+% testing my idea of using cumulative singularvalues
+%
+% James Chen, 11/30/2000
+% ECS 289K, Project
+%
+close all
+
+if (SP &gt; EP)
+        disp('SP must be smaller than EP!!!')
+        return
+end
+
+
+% read in the image
+IMG1 = imread(F);
+
+
+X1org = im2double(IMG1);
+XSize = size(X1org);
+figure(1);
+colormap(gray);
+imagesc(X1org);
+title (sprintf('Original Image: %s, Size: %i x %i', F, XSize(1), XSize(2)));
+
+
+% mean
+m = mean(mean(X1org))
+
+X1org = X1org - m;
+
+% display the image
+figure(2);
+subplot(2,3,1);
+% shown in original size: imshow(X1org);
+
+% or: in matrix format:
+colormap(gray);
+imagesc(X1org+m);
+
+%title ('Original');
+
+NumBlocks = XSize(1)/BlockSize;
+
+PercentageStep = (EP - SP)/4.0;
+Percentage = EP;
+pl = 2;
+while (pl &lt;= 6)
+   for i = 1:NumBlocks
+        r = (i-1) * BlockSize + 1;
+        for j = 1:NumBlocks
+
+                %disp(sprintf('Processing block %i %i', i,j))
+
+                c = (j-1) * BlockSize + 1; 
+
+
+                TB = X1org(r:r+BlockSize-1, c: c+BlockSize-1);
+                [TU,TS,TV] = svd(TB);
+                %U(i, j, :, :) = TU;
+                %S(i, j, :, :) = TS;
+                %V(i, j, :, :) = TV;
+                SV = diag(TS); % a n by 1 vector
+
+                % cumulative sum of singular values
+                s = size(SV);
+                R(i,j) = s(1);
+                 % rank for original block
+
+
+                TCS(1) = SV(1);
+
+                for k = 2: s(1)
+                        TCS(k) = TCS(k-1) + SV(k);
+                end
+                
+                %CS(i,j,:,:) = TCS;
+
+                %
+                % reconstruction, de-compression
+                %
+                
+                v = TCS(s(1)) * Percentage *0.01;
+                % find the rank used for each block
+                rr = 1;
+                k = s(1)-1;
+                while (k &gt;=1) 
+                        if ( (TCS(k) &lt;= v) &amp; (TCS(k+1) &gt;= v))
+                                rr = k+1;
+                                break;
+                        end;
+                        k = k-1;
+                end
+
+                RUsed(i,j) = rr;
+                PRUsed(i,j) = rr/s(1);
+                %disp(sprintf('rank used = %i', rr))
+                
+                X = TU(:, 1:rr) * TS(1:rr, 1:rr) * TV(:, 1:rr)';
+                
+                
+                CI(r:r+BlockSize-1, c: c+BlockSize-1) = X;
+
+
+                
+
+        end
+                
+   end
+
+   % add the mean back to image
+   CI = CI + m;
+
+   disp('--------------')
+   disp(sprintf('Rnaks used for percentage = %i:\n', Percentage))
+   RUsed
+
+   avg = sum(sum(RUsed))/(NumBlocks*NumBlocks);
+   disp(sprintf('Average ranks used = %f\n\n', avg))
+
+   disp(sprintf('Ranks used / %i:', s(1)))
+   PRUsed
+   avg = sum(sum(PRUsed))/(NumBlocks*NumBlocks);
+   disp(sprintf('Average percentage of ranks used = %f\n', avg))
+
+   %display
+   figure(2)
+   subplot(2,3, pl); 
+   colormap(gray);
+   imagesc(CI);
+   title(sprintf('Percentage = %i', Percentage))
+
+   % !!!! add th emean back to the original picture
+
+   X1org = X1org + m;
+        
+   Diff = X1org - CI;
+
+   figure(3)
+   subplot(2,3, pl); 
+   colormap(gray);
+   imagesc(Diff); 
+   title(sprintf('Difference for %i', Percentage))
+
+   figure(4)
+   subplot(2,3, pl); 
+   colormap(gray);
+   imagesc(abs(Diff)); 
+   title(sprintf('Abs. Difference for %i', Percentage))
+
+   %figure(5)
+   %subplot(2,3,pl)
+   %bar(RUsed)
+   %title('Ranks used for each sub-block');
+   %axis([0 NumBlocks+1 0 s(1)]);
+
+   %figure(6)
+   %subplot(2,3,pl)
+   %bar(PRUsed)
+   %title('Percentage of the ranks used');
+   %axis([0 NumBlocks+1 0 1]);
+
+   Percentage = Percentage - PercentageStep;
+   pl = pl + 1;
+
+
+   % compute Peak SN ratio:
+   mse1 = 0;
+   for i = 1: XSize(1)
+        for j = 1: XSize(2)
+                mse1 = mse1 + Diff(i,j)*Diff(i,j);
+        end
+   end
+   mse1 = mse1 /(XSize(1) * XSize(2));
+   mse1 = sqrt(mse1)
+
+   
+   PSNR = 10 * log10(255^2/mse1)
+
+
+end
+
+
+
+
+
+</a></pre>
+
+</dd></body></html>
