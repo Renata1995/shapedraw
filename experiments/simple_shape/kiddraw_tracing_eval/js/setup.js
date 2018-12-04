@@ -109,23 +109,25 @@ function setupGame () {
         };
 
         var main_on_start = function(trial) {
-
+            socket.removeListener('stimulus', oldCallback);
             oldCallback = newCallback;
-            var newCallback = function(d) {
-                if(trial.trialNum % catch_freq != 0){
+            
+            if(trial.trialNum % catch_freq != 0) {
+                var newCallback = function (d) {
                     trial.image_url = d.img_url;
                     trial.category = d.category;
-                }
-                trial.age = d.age;
-                trial.session_id = d.session_id;
-                trial.choices = _.range(1, d.number_rating_levels+1);
-                trial.upper_bound = d.upper_bound;
-                trial.lower_bound = d.lower_bound;
-            };
-            socket.removeListener('stimulus', oldCallback);
-            socket.on('stimulus', newCallback);
-            // call server for stims
-            socket.emit('getStim', {gameID: id});
+                    trial.age = d.age;
+                    trial.session_id = d.session_id;
+                    trial.choices = _.range(1, d.number_rating_levels + 1);
+                    trial.upper_bound = d.upper_bound;
+                    trial.lower_bound = d.lower_bound;
+                };
+                // call server for stims
+                socket.emit('getStim', {gameID: id});
+                socket.on('stimulus', newCallback);
+
+            }
+
         };
 
         // Bind trial data with boilerplate
