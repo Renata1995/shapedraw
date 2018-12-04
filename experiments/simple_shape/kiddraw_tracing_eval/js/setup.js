@@ -1,6 +1,8 @@
 var oldCallback;
 var score = 0;
 var num_trials = 20;
+var catch_freq = Math.round(num_trials/5);
+console.log(catch_freq);
 
 function sendData() {
     console.log('sending data to mturk');
@@ -63,7 +65,7 @@ var previewTrial = {
 var goodbyeTrial = {
     type: 'instructions',
     pages: [
-        '<p> Once you click the submit button, you will be prompted with a pop-up asking you if you are sure that you want to leave the site. Please click the OK button, which will trigger submission of this HIT to Amazon Mechanical Turk. </p>'
+        '<p> Once you click the submit button, you will be prompted with a pop-up asking you if you are sure that you want to leave the site. Please click the YES button, which will trigger submission of this HIT to Amazon Mechanical Turk. </p>'
     ],
     show_clickable_nav: true,
     allow_backward:false,
@@ -106,7 +108,7 @@ function setupGame () {
 
             oldCallback = newCallback;
             var newCallback = function(d) {
-                if(trial.trialNum %2 != 0){
+                if(trial.trialNum % catch_freq != 0){
                     trial.image_url = d.img_url;
                     trial.category = d.category;
                 }
