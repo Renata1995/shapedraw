@@ -181,7 +181,6 @@ jsPsych.plugins["image-button-response"] = (function() {
 
             display_element.innerHTML = html;
             setTimeout(function(){after_observation();},2000);
-
         }
 
         function after_observation(){

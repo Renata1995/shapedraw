@@ -115,7 +115,6 @@ function setupGame () {
                 trial.choices = _.range(1, d.number_rating_levels+1);
                 trial.upper_bound = d.upper_bound;
                 trial.lower_bound = d.lower_bound;
-
             };
             socket.removeListener('stimulus', oldCallback);
             socket.on('stimulus', newCallback);
