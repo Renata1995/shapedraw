@@ -77,8 +77,8 @@ function Trial () {
     this.iterationName = 'pilot0';
     this.dev_mode = false;
     this.prompt = "Please rate how well this tracing matches the reference shape.";
-    this.image_url = "/demo.png";
-    this.category ='square';
+    this.image_url = "img/catch.png";
+    this.category ='catch';
     this.choices = ['1','2','3','4','5'];
     this.dev_mode = false
 }
@@ -106,8 +106,10 @@ function setupGame () {
 
             oldCallback = newCallback;
             var newCallback = function(d) {
-                trial.category = d.category;
-                trial.image_url = d.img_url;
+                if(trial.trialNum %2 != 0){
+                    trial.image_url = d.img_url;
+                    trial.category = d.category;
+                }
                 trial.age = d.age;
                 trial.session_id = d.session_id;
                 trial.choices = _.range(1, d.number_rating_levels+1);
