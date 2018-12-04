@@ -80,7 +80,11 @@ function Trial () {
     this.image_url = "img/catch.png";
     this.category ='catch';
     this.choices = ['1','2','3','4','5'];
-    this.dev_mode = false
+    this.dev_mode = false,
+    this.upper_bound = "EXCELLENT";
+    this.lower_bound = "POOR";
+    this.age = 11;
+    this.session_id = '22222222222';
 }
 
 function setupGame () {
