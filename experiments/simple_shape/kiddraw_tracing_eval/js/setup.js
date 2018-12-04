@@ -3,11 +3,9 @@ var score = 0;
 var num_trials = 20;
 
 function sendData() {
-    var submit = confirm("Would you like to submit your data and leave this site?");
-    if(submit){
-	console.log('sending data to mturk');
-        jsPsych.turk.submitToTurk({'score':score});
-    }
+    console.log('sending data to mturk');
+    jsPsych.turk.submitToTurk({'score':score});
+    
 }
 
 var consentHTML = {
@@ -15,7 +13,7 @@ var consentHTML = {
     'str2' : '<p>We expect this hit to take approximately 10-15 minutes to complete, including the time it takes to read instructions.</p>',
     'str3' : "<p>If you encounter a problem or error, send us an email (sketchloop@gmail.com) and we will make sure you're compensated for your time! Please pay attention and do your best! Thank you!</p><p> Note: We recommend using Chrome. We have not tested this HIT in other browsers.</p>",
     'str4' : ["<u><p id='legal'>Consenting to Participate:</p></u>",
-        "<p id='legal'>By completing this HIT, you are participating in a study being performed by cognitive scientists in the Stanford Department of Psychology. If you have questions about this research, please contact the <b>Sketchloop Admin</b> at <b><a href='mailto://sketchloop@gmail.com'>sketchloop@gmail.com</a> </b> or Zixian Chai (zchai14@stanford.edu) You must be at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</p>"].join(' ')
+        "<p id='legal'>By completing this HIT, you are participating in a study being performed by cognitive scientists in the Stanford Department of Psychology. If you have questions about this research, please contact the <b>Sketchloop Admin</b> at <b><a href='mailto://sketchloop@gmail.com'>sketchloop@gmail.com</a> </b>. You must be at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</p>"].join(' ')
 };
 
 var instructionsHTML = {
@@ -51,7 +49,7 @@ var welcomeTrial = {
 };
 
 var acceptHTML = {
-    'str1' : '<p> Welcome! In this HIT, you will see some sketches of objects. For each sketch, you will try to guess which of the objects is the best match. </p>',
+    'str1' : '<p> Welcome! In this HIT, you will view some drawings produced by children who were trying to trace a shape as accurately as they could. Your task is to rate each tracing on a 5-point scale. </p>',
     'str2' : '<p> This is only a demo! If you are interested in participating, please accept the HIT in MTurk before continuing further. </p>'
 }
 
