@@ -111,7 +111,7 @@ function setupGame () {
         var main_on_start = function(trial) {
             socket.removeListener('stimulus', oldCallback);
             oldCallback = newCallback;
-            
+
             if(trial.trialNum % catch_freq != 0) {
                 var newCallback = function (d) {
                     trial.image_url = d.img_url;
