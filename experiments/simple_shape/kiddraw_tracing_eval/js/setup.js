@@ -26,7 +26,7 @@ var instructionsHTML = {
               '<p>Example tracing with score 1: </p>',
 	      '<div class="eg_div"><img class="eg_img" src="img/t1_square.png"><img class="eg_img" src="img/t1_shape.png"><img class="eg_img" src="img/t1_circle.png"></div>'].join(' '),
     'str3': ['<p> If you notice any of the following, this should reduce the score you assign to that tracing:</p>',
-        '<ul><li>Adding extra objects to the tracing (e.g. scribbles, heart, flower, smiling faces, texts)<img class="notice_img" src="img/extra.png"></li>',
+        '<ul><li>Adding extra objects to the tracing (e.g. scribbles, heart, flower, smiling faces, text)<img class="notice_img" src="img/extra.png"></li>',
         '<li>Painting or "filling in" the reference shape, rather than tracing its outline<img class="notice_img" src="img/paint.png"></li></ul>',].join(' '),
     'str4':'<p> A different sketch will appear on each trial. After a brief two-second delay, the buttons will become active (dark gray) so you can submit your rating. Please take your time to provide as accurate of a rating as you can.</p> </p> <img class="rating_img" src="img/rating.png">',
     'str5': "<p> When you finish, please click the submit button to finish the game . Let's begin!"
