@@ -231,13 +231,13 @@ jsPsych.plugins["image-button-response"] = (function() {
 
         // function to end trial when it is time
         function end_trial() {
-
+	    var turkInfo = jsPsych.turk.turkInfo();
+	    
             // data saving
             var trial_data = {
                 dbname:'kiddraw',
                 colname: 'tracing_eval',
                 iterationName: 'testing2',
-                eventType: 'click',
                 reaction_time: response.rt,
                 image_url: trial.image_url,
                 session_id: trial.session_id,
@@ -245,8 +245,11 @@ jsPsych.plugins["image-button-response"] = (function() {
                 category: trial.category,
                 trialNum: trial.trialNum,
                 startTrialTime: start_time,
-                endTrialTime: Date.now()
-            };
+                endTrialTime: Date.now(),
+		workerId: turkInfo.workerId,
+		hitID: turkInfo.hitId,
+		aID: turkInfo.assignmentId
+	    };
 
             // clear the HTML in the display element
             display_element.innerHTML = '';

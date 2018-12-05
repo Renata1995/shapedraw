@@ -1,6 +1,6 @@
 var oldCallback;
 var score = 0;
-var num_trials = 20;
+var num_trials = 105;
 var catch_freq = Math.round(num_trials/5);
 console.log(catch_freq);
 
@@ -12,7 +12,7 @@ function sendData() {
 
 var consentHTML = {
     'str1' : '<p>In this HIT, you will view some drawings produced by children who were trying to trace a shape as accurately as they could. Your task is to rate each tracing on a 5-point scale. </p>',
-    'str2' : '<p>We expect this hit to take approximately 10-15 minutes to complete, including the time it takes to read instructions.</p>',
+    'str2' : '<p>We expect this hit to take approximately 8-10 minutes to complete, including the time it takes to read instructions.</p>',
     'str3' : "<p>If you encounter a problem or error, send us an email (sketchloop@gmail.com) and we will make sure you're compensated for your time! Please pay attention and do your best! Thank you!</p><p> Note: We recommend using Chrome. We have not tested this HIT in other browsers.</p>",
     'str4' : ["<u><p id='legal'>Consenting to Participate:</p></u>",
         "<p id='legal'>By completing this HIT, you are participating in a study being performed by cognitive scientists in the Stanford Department of Psychology. If you have questions about this research, please contact the <b>Sketchloop Admin</b> at <b><a href='mailto://sketchloop@gmail.com'>sketchloop@gmail.com</a> </b>. You must be at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</p>"].join(' ')
@@ -26,7 +26,7 @@ var instructionsHTML = {
               '<p>Example tracing with score 1: </p>',
 	      '<div class="eg_div"><img class="eg_img" src="img/t1_square.png"><img class="eg_img" src="img/t1_shape.png"><img class="eg_img" src="img/t1_circle.png"></div>'].join(' '),
     'str3': ['<p> If you notice any of the following, this should reduce the score you assign to that tracing:</p>',
-        '<ul><li>Adding extra objects to the tracing (e.g. scribbles, heart, flower, smiling faces)<img class="notice_img" src="img/extra.png"></li>',
+        '<ul><li>Adding extra objects to the tracing (e.g. scribbles, heart, flower, smiling faces, text)<img class="notice_img" src="img/extra.png"></li>',
         '<li>Painting or "filling in" the reference shape, rather than tracing its outline<img class="notice_img" src="img/paint.png"></li></ul>',].join(' '),
     'str4':'<p> A different sketch will appear on each trial. After a brief two-second delay, the buttons will become active (dark gray) so you can submit your rating. Please take your time to provide as accurate of a rating as you can.</p> </p> <img class="rating_img" src="img/rating.png">',
     'str5': "<p> When you finish, please click the submit button to finish the game . Let's begin!"
@@ -47,7 +47,8 @@ var welcomeTrial = {
 	    instructionsHTML.str4,
         instructionsHTML.str5
     ],
-    show_clickable_nav: true
+    show_clickable_nav: true,
+    allow_keys:  false
 };
 
 var acceptHTML = {
