@@ -22,8 +22,8 @@ if(argv.gameport) {
     gameport = argv.gameport;
     console.log('using port ' + gameport);
 } else {
-    gameport = 8886;
-    console.log('no gameport specified: using 8886\nUse the --gameport flag to change');
+    gameport = 8888;
+    console.log('no gameport specified: using 8888\nUse the --gameport flag to change');
 }
 
 try {
@@ -43,7 +43,9 @@ app.get('/*', (req, res) => {
     // // serve stuff that the client requests
     // serveFile(req, res);
     var id = req.query.workerId;
-if(!id || id === 'undefined') {
+    console.log(req.query);
+    
+    if(!id || id === 'undefined') {
     console.log('id undefined');
     serveFile(req, res);
 } else if(!valid_id(id)) {
@@ -128,7 +130,7 @@ var handleInvalidID = function(req, res) {
 function checkPreviousParticipant (workerId, callback) {
     var p = {'workerId': workerId};
     var postData = {
-        dbname: 'tracing_rating',
+        dbname: 'kiddraw',
         query: p,
         projection: {'_id': 1}
     };
