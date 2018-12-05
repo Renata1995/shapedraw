@@ -12,7 +12,7 @@ function sendData() {
 
 var consentHTML = {
     'str1' : '<p>In this HIT, you will view some drawings produced by children who were trying to trace a shape as accurately as they could. Your task is to rate each tracing on a 5-point scale. </p>',
-    'str2' : '<p>We expect this hit to take approximately 10-15 minutes to complete, including the time it takes to read instructions.</p>',
+    'str2' : '<p>We expect this hit to take approximately 8-10 minutes to complete, including the time it takes to read instructions.</p>',
     'str3' : "<p>If you encounter a problem or error, send us an email (sketchloop@gmail.com) and we will make sure you're compensated for your time! Please pay attention and do your best! Thank you!</p><p> Note: We recommend using Chrome. We have not tested this HIT in other browsers.</p>",
     'str4' : ["<u><p id='legal'>Consenting to Participate:</p></u>",
         "<p id='legal'>By completing this HIT, you are participating in a study being performed by cognitive scientists in the Stanford Department of Psychology. If you have questions about this research, please contact the <b>Sketchloop Admin</b> at <b><a href='mailto://sketchloop@gmail.com'>sketchloop@gmail.com</a> </b>. You must be at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</p>"].join(' ')
