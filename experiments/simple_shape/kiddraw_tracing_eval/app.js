@@ -160,7 +160,7 @@ function sendSingleStim(socket, data) {
     sendPostRequest('http://localhost:6002/db/getsinglestim', {
         json: {
             dbname: 'stimuli',
-            colname: 'kiddraw_tracing_eval_dev',
+            colname: 'kiddraw_tracing_eval',
             numTrials: 1,
             gameid: data.gameID
         }
