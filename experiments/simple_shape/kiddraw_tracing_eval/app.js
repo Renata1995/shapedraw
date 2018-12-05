@@ -43,6 +43,7 @@ app.get('/*', (req, res) => {
     // // serve stuff that the client requests
     // serveFile(req, res);
     var id = req.query.workerId;
+
 if(!id || id === 'undefined') {
     console.log('id undefined');
     serveFile(req, res);
