@@ -1,7 +1,7 @@
 
 ---
-title: "Correlation between Tracing Analysis anrater_data Human rating"
-output: html_rater_dataocument
+title: "Correlation between Tracing Analysis Mturk Human rating"
+output: html_document
 ---
 
 ```{r}
@@ -14,13 +14,20 @@ library(broom) #tidy()
 library(hydroGOF) # rmse()
 ```
 
-### NCC Loss
+### Summary
 
-For a reference anrater_data a rater_datarawing:
+#### Basic information about the survey
+In total: 80 stimuli per shape per age - 2160 stimuli
 
-1. Multiply the value (0-1) at each pair of corresponrater_dataing pixels anrater_data sum them up
+Current data: 1982 stimuli get rated by 26 mturkers (1 mturker only pressed 4 and his/her answers are removed)
 
-2. Normalize the sum to mean=0, strater_data=1
+#### Normalized Cross-Correlation Loss
+
+For a reference and a drawing:
+
+1. Multiply the value (0-1) at each pair of corresponding pixels and sum them up
+
+2. Normalize the sum to mean=0, std=1
 
 #### Import rater_data
 ```{r}
@@ -28,8 +35,9 @@ rater_data <- read.csv('kiddraw_tracing_summary.csv')%>%
   mutate(tracing_item = factor(tracing_item, levels = c('square', 'shape', 'circle')))
 ```
 
+#### Current data in each age + shape group
 ```{r}
-for (t in c('square', 'shape')){
+for (t in c('square', 'shape', 'circle')){
   for (i in seq(2, 10, by=1) ){
     sub = subset(rater_data , tracing_item == t & age == i)
     print (c(t, i, nrow(sub)) )
@@ -45,7 +53,7 @@ rater_data %>%
   gather(registration, val, human_norm_rating, overall) %>%
   ggplot(aes(x = age, y = val, color = tracing_item)) +
     geom_point() +
-    geom_smooth(methorater_data = 'lm') +
+    geom_smooth(method = 'lm') +
     facet_wrap(~ registration) +
     theme_bw() +
     theme(aspect.ratio = 1) 
@@ -57,7 +65,7 @@ rater_data %>%
   gather(registration, val, human_norm_rating, norm_shape) %>%
   ggplot(aes(x = age, y = val, color = tracing_item)) +
     geom_point() +
-    geom_smooth(methorater_data = 'lm') +
+    geom_smooth(method = 'lm') +
     facet_wrap(~ registration) +
     theme_bw() +
     theme(aspect.ratio = 1) 
@@ -69,20 +77,22 @@ rater_data %>%
   gather(registration, val, human_norm_rating, norm_spatial) %>%
   ggplot(aes(x = age, y = val, color = tracing_item)) +
     geom_point() +
-    geom_smooth(methorater_data = 'lm') +
+    geom_smooth(method = 'lm') +
     facet_wrap(~ registration) +
     theme_bw() +
     theme(aspect.ratio = 1) 
 ```
 
 #### Corrleation of human rating with NCC Loss: 
-Shape Error anrater_data Human Rating: r = - 0.77, p < 0.01
+Shape Error vs. Human Rating: r = - 0.70, p < 0.01
 
-Spatial Error anrater_data Human Rating: r = - 0.52, p < 0.01
+Spatial Error vs. Human Rating: r = - 0.51, p < 0.01
 
-Shape+Spatial Error anrater_data Human Rating: r = - 0.72, p < 0.01
+Shape+Spatial Error vs. Human Rating: r = - 0.69, p < 0.01
 
 ```{r}
+rater_data <- read.csv('kiddraw_tracing_summary.csv')%>%
+  mutate(tracing_item = factor(tracing_item, levels = c('square', 'shape', 'circle')))
 cor.test(rater_data$norm_shape, rater_data$human_norm_rating)
 ```
 ```{r}
@@ -92,73 +102,15 @@ cor.test(rater_data$norm_spatial, rater_data$human_norm_rating)
 cor.test(rater_data$overall, rater_data$human_norm_rating)
 ```
 
-#### Linear Model
-```{r}
-rater_rater_dataata$overall = scale(rater_rater_dataata$overall)
-m1 = lmer(human_norm_rating ~ age + norm_shape + norm_spatial + tracing_item + (1 | session_irater_data), rater_dataata=rater_rater_dataata)
-summary(m1)
-```
-
-#### Cross-Valirater_dataation
+#### Cross-Validation
 
 ```{r}
 rater_data <- read.csv('kiddraw_tracing_summary.csv')
-
-train_ind <- sample(1:nrow(rater_data), nrow(rater_data) * 0.8)
-train <- rater_data[train_ind, ]
-test <- rater_data[-train_ind, -which(names(rater_data)=="human_norm_rating")]
-test.Y = rater_data[-train_ind, ]$human_norm_rating
+rater_data = rater_data[rater_data$tracing_item != 'circle',]
 ```
 
 ```{r}
-m1 = lmer(human_norm_rating ~ age + norm_shape + norm_spatial + tracing_item + (1 | session_id), data=train)
-m2 = lmer(human_norm_rating ~ age + norm_shape + norm_spatial + (1 | tracing_item ), data=train)
-m3 = lmer(human_norm_rating ~ age + norm_shape + norm_spatial + (1 | session_id), data=train)
-models = c(m1, m2, m3)
-
-pred1 = predict(m1, newdata = test, allow.new.levels = TRUE)
-mse1 = mean((pred1 - test.Y)^2)
-pred2 = predict(m2, newdata = test, allow.new.levels = TRUE)
-mse2 = mean((pred2 - test.Y)^2)
-pred3 = predict(m3, newdata = test, allow.new.levels = TRUE)
-mse3 = mean((pred3 - test.Y)^2)
-
-mse_list = c(mse1, mse2, mse3)
-mse_list
-summary(m1)
-
-```
-
-
-```{r}
-
-
-train.rest = train[,-which(names(rater_data)=="human_norm_rating")]
-train.Y = train$human_norm_rating
-
-t_pred1 = predict(m1, newdata = train.rest, allow.new.levels = TRUE)
-t_mse1 = mean((t_pred1 - train.Y)^2)
-t_pred2 = predict(m2, newdata = train.rest, allow.new.levels = TRUE)
-t_mse2 = mean((t_pred2 - train.Y)^2)
-t_pred3 = predict(m3, newdata = train.rest, allow.new.levels = TRUE)
-t_mse3 = mean((t_pred3 - train.Y)^2)
-c(t_mse1, t_mse2, t_mse3)
-```
-
-```{r}
-num_fold = 5
-
-for (t in c('square', 'shape', 'circle')){
-  for (i in seq(2, 10, by=1) ){
-    sub = subset(rater_data , tracing_item == 'square' & age == i)
-    
-  }
-}
-```
-
-
-```{r}
-# Split data in 20/80 (percentage)
+# Split data in 20/80 test/training
 set.seed(1)
 parts <- partition(rater_data, p = 0.2, cat_col = c("age", "tracing_item"))
 
@@ -168,15 +120,13 @@ train_set <- parts[[2]]
 
 ```{r}
 set.seed(1)
-# Split data in 20/80 (percentage)
 train_set <- fold(train_set, k=5, cat_col = c("age", "tracing_item"))
 
-# Order by .folds
 train_set <- train_set[order(train_set$.folds),]
 
-train_set %>% 
-  count(age, tracing_item, .folds) %>% 
-  kable(align='c')
+# train_set %>% 
+#   count(age, tracing_item, .folds) %>% 
+#   kable(align='c')
 
 ```
 
@@ -186,6 +136,8 @@ crossvalidate <- function(data, k, model, dependent, random = FALSE){
   for (fold in 1:k){
     testing_set <- data[data$.folds == fold,]
     training_set <- data[data$.folds != fold,]
+    #print (nrow(testing_set))
+    #print (nrow(training_set))
 
     if (isTRUE(random)){
 
@@ -210,13 +162,31 @@ crossvalidate <- function(data, k, model, dependent, random = FALSE){
     MSE_train <- mean((predicted_train - training_set[[dependent]])^2)
     
     performances[fold] <- MSE
-    print (c("training: ", MSE_train, "test: ", MSE))
+    print (paste0(fold, "  training MSE: ", MSE_train, "  hold out MSE: ", MSE))
     
     test_r = (predicted - testing_set[[dependent]])^2
     train_r = (predicted_train - training_set[[dependent]])^2
-    hist(test_r, xlim=c(0,4))
-    hist(train_r, xlim=c(0,4))
     
+    ## Plot the fold
+    # training_set$model = predicted_train
+    # testing_set$model = predicted
+    # 
+    # p = ggplot(training_set, aes(model, human_norm_rating, color=tracing_item)) +
+    #   geom_point(size=3) +
+    #   geom_abline(intercept = 0, slope = 1) + 
+    #   theme_bw() + 
+    #   xlab("model") +
+    #   ylab("human") 
+    # print (p)
+    # 
+    # p = ggplot(testing_set, aes(model, human_norm_rating, color=tracing_item)) +
+    #   geom_point(size=3) +
+    #   geom_abline(intercept = 0, slope = 1) + 
+    #   theme_bw() + 
+    #   xlab("model") +
+    #   ylab("human") 
+    # print (p)  
+  
   }
 
   return (performances)
@@ -224,40 +194,84 @@ crossvalidate <- function(data, k, model, dependent, random = FALSE){
 }
 ```
 
+#### Shape Error + Spatial Error
+Model: Shape_Error + Spatial_Error + Age + Tracing_Item + (1 | Session_ID)
 ```{r}
 m1 = "human_norm_rating ~ age + norm_shape + norm_spatial + tracing_item + (1 | session_id)"
-m1
 result = crossvalidate(train_set, k=5, model=m1, dependent='human_norm_rating', random=TRUE)
-print ("Average MSE across all folds")
-print (mean(result))
-print ("-------------------")
+print (paste0("Average MSE across all folds: ", mean(result)))
 ```
 
+#### Spatial Error Only
+Model: Spatial_Error + Age + Tracing_Item + (1 | Session_ID)
 ```{r}
-m2 = "human_norm_rating ~ age + norm_shape + norm_spatial + (1 | tracing_item )"
-m2
-result = crossvalidate(train_set, k=5, model=m2, dependent='human_norm_rating', random=TRUE)
-print ("Average MSE across all folds")
-print (mean(result))
-print ("-------------------")
 
-m3 = "human_norm_rating ~ age + norm_shape + norm_spatial + (1 | session_id)"
-m3
-result = crossvalidate(train_set, k=5, model=m3, dependent='human_norm_rating', random=TRUE)
-print ("Average MSE across all folds")
-print (mean(result))
-print ("-------------------")
+m4 = "human_norm_rating ~ age + norm_spatial + tracing_item + (1 | session_id)"
+result = crossvalidate(train_set, k=5, model=m4, dependent='human_norm_rating', random=TRUE)
+print (paste0("Average MSE across all folds: ", mean(result)))
+
 ```
+
+#### Shape Error Only
+
+Model: Shape_Error + Age + Tracing_Item + (1 | Session_ID)
+```{r}
+m5 = "human_norm_rating ~ age + norm_shape + tracing_item + (1 | session_id)"
+result = crossvalidate(train_set, k=5, model=m5, dependent='human_norm_rating', random=TRUE)
+print (paste0("Average MSE across all folds: ", mean(result)))
+```
+
+##### Apply the shape + spatial error model on the whole training dataset and examine it on the new test set
+Model: Shape_Error + Spatial_Error + Age + Tracing_Item + (1 | Session_ID)
 ```{r}
 # Creating the model for the full training set
-model_m1 <- lmer(m1, train_set, REML = FALSE)
-
+model1 <- lmer(m1, train_set, REML = FALSE)
 # Predict the dependent variable in the test_set with the trained model
-predicted <- predict(model_m1, test_set, allow.new.levels=TRUE)
-
+predicted <- predict(model1, test_set, allow.new.levels=TRUE)
 # Get the Root Mean Square Error between the predicted and the observed
-RMSE <- mean((predicted - test_set[['human_norm_rating']])^2)
-RMSE
-#> [1] 6.418155
+MSE <- mean((predicted - test_set[['human_norm_rating']])^2)
+
+summary(model1)
+MSE
+```
+
+#### Shape Error + Spatial Error + Interaction between Shape and Spatial
+
+- When shape error is large, participants might give the tracing a low score despite the spatial error.
+- When shape error is small, participants might starts to weight spatial error more heavily.
+
+
+Model: Shape_Error + Spatial_Error +  Shape_Error * Spatial_Error + Age + Tracing_Item + (1 | Session_ID)
+```{r}
+#m6 = "human_norm_rating ~ age + norm_shape + norm_spatial + norm_shape * norm_spatial + tracing_item + (1 | session_id)"
+m6 = "human_norm_rating ~ norm_shape * norm_spatial + tracing_item"
+result = crossvalidate(train_set, k=5, model=m6, dependent='human_norm_rating', random=FALSE)
+print (paste0("Average MSE across all folds: ", mean(result)))
+```
+
+##### Apply the interaction model on the whole training dataset and examine it on the new test set
+Model: Shape_Error + Spatial_Error +  Shape_Error * Spatial_Error + Age + Tracing_Item + (1 | Session_ID)
+```{r}
+# Creating the model for the full training set
+inter <- lm(m6, train_set, REML = FALSE)
+# Predict the dependent variable in the test_set with the trained model
+predicted <- predict(inter, test_set, allow.new.levels=TRUE)
+# Get the Root Mean Square Error between the predicted and the observed
+MSE <- mean((predicted - test_set[['human_norm_rating']])^2)
+
+summary(inter)
+MSE
+```
+
+```{r}
+anova(inter)
+```
+
+```{r}
+#hist(test_r, col="gray", labels = TRUE, xlim=c(0,4))
+    #hist(train_r, col="gray", labels = TRUE, xlim=c(0,4))
+    #plot(predicted_train, training_set[[dependent]])
+    #plot(predicted, testing_set[[dependent]])
+    
 ```
 

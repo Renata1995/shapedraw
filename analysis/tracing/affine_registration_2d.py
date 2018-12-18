@@ -27,7 +27,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import airlab as al
 
 
-def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
+def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=200):
     # set the used data type
     dtype = th.float32
     # set the device for the computaion to CPU
@@ -65,7 +65,7 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
 
 
     # choose the Mean Squared Error as image loss
-    image_loss = al.loss.pairwise.MSE(fixed_image, moving_image)
+    image_loss = al.loss.pairwise.NCC(fixed_image, moving_image)
     #init_loss = np.sum(np.square(fixed_image.numpy() - moving_image.numpy()))/fsize
     registration.set_image_loss([image_loss])
 
@@ -107,10 +107,10 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=500):
 
     return init_loss, final_loss, np.abs(param[0]), translate, scale, warped_image
 
-img_draw = 'test_scale.png'
-img_ref = 'tracing_ref/this square_ref.png'
-init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref, 'transformed.png')
-print init_loss, final_loss
+# img_draw = 'test3.png'
+# img_ref = 'tracing_ref/this circle_ref.png'
+# init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref, 'transformed.png')
+# print init_loss, final_loss
 
 
 
