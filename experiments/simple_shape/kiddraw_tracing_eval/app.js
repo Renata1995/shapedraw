@@ -13,7 +13,6 @@ var
 
 
 // define number of trials to fetch from database (what is length of each recog HIT?)
-var num_trials = 10;
 var gameport;
 var researchers = ['A4SSYO0HDVD4E', 'A1BOIDKD33QSDK'];
 var block_researcher = false;
