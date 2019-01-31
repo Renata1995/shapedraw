@@ -90,27 +90,43 @@ def affine_reg(img_draw, img_ref, output_path, lr=0.01, iter=200):
 
 
     # plot the results
-    plt.subplot(131)
-    plt.imshow(fixed_image.numpy(), cmap='gray')
-    plt.title('Ref')
+    # plt.subplot(131)
+    # plt.imshow(fixed_image.numpy(), cmap='gray')
+    # plt.title('Ref')
 
-    plt.subplot(132)
-    plt.imshow(np.add(fixed_image.numpy(), moving_image.numpy()), cmap='gray')
-    plt.title('Draw')
+    plt.figure(figsize=(13, 6))
+    plt.subplot(121)
+    plt.xticks([])
+    plt.yticks([])
+    fixed = fixed_image.numpy()
+    moved = moving_image.numpy()
+    warp = warped_image.numpy()
+    csfont = {'fontname': 'Times New Roman', 'size':35}
 
-    plt.subplot(133)
-    plt.imshow(np.add(fixed_image.numpy(), warped_image.numpy()), cmap='gray')
-    plt.title('Tran')
+    p1 = np.ones((fixed.shape[0], fixed.shape[1], 3))
+    p1[fixed < 1] = [0.5, 0.5, 0.5]
+    p1[moved < 1] = [0.4, 0.62, 0.78]
+    plt.imshow(p1)
+    plt.title('Raw', **csfont)
 
-    plt.savefig(output_path)
+    plt.subplot(122)
+    plt.xticks([])
+    plt.yticks([])
+    p2 = np.ones((fixed.shape[0], fixed.shape[1], 3))
+    p2[fixed < 1] = [0.5, 0.5, 0.5]
+    p2[warp < 0.5] = [0.4, 0.62, 0.78]
+    plt.imshow(p2)
+    plt.title('Transformed', **csfont)
+
+    plt.savefig(output_path, bbox_inches = 'tight', pad_inches = 0)
     plt.close()
 
     return init_loss, final_loss, np.abs(param[0]), translate, scale, warped_image
 
-# img_draw = 'test3.png'
-# img_ref = 'tracing_ref/this circle_ref.png'
-# init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref, 'transformed.png')
-# print init_loss, final_loss
+img_draw = 'a3.png'
+img_ref = 'tracing_ref_400/square_ref.png'
+init_loss, final_loss, ro, tran, scale, warped = affine_reg(img_draw, img_ref, 'transformed.png')
+print init_loss, final_loss
 
 
 
