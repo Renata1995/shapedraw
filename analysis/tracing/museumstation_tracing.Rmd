@@ -1,0 +1,107 @@
+---
+title: "Tracing Analysis on Museumstation Dataset"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(groupdata2)
+library(dplyr)
+library(knitr) 
+library(broom) 
+library(hydroGOF) 
+```
+
+##### Load data and convert types
+```{r}
+mdata = read.csv('tracing_raw.csv')
+mdata$category = factor(mdata$category, levels = c('square', 'shape'))
+mdata$has_ref = as.logical(mdata$has_ref)
+mdata$norm_shape = scale(mdata$post_tran)
+mdata$norm_spatial = scale(mdata$spatial)
+rater_data = mdata[!is.na(mdata$human_rating),]
+```
+
+##### General distribution of the rating data
+```{r}
+for (t in c('square', 'shape')){
+  for (i in seq(2, 10, by=1) ){
+    sub = subset(rater_data , category == t & age == i)
+    print (c(t, i, nrow(sub)) )
+  }
+}
+```
+
+##### Split data in 20/80 test/training
+```{r}
+parts <- partition(rater_data, p = 0.2, cat_col = c("age", "category"))
+test_set <- parts[[1]]
+train_set <- parts[[2]]
+```
+
+##### Cross Validation
+```{r}
+train_set <- fold(train_set, k=5, cat_col = c("age", "category"))
+train_set <- train_set[order(train_set$.folds),]
+
+train_set %>%
+count(age, category, .folds) %>%
+kable(align='c')
+```
+
+```{r}
+crossvalidate <- function(data, k, m, dependent){
+  performances <- c()
+  for (fold in 1:k){
+    testing_set <- data[data$.folds == fold,]
+    training_set <- data[data$.folds != fold,]
+    model <-  lm(m, training_set)
+
+    predicted <- predict(model, testing_set, allow.new.levels=TRUE)
+    MSE <- mean((predicted - testing_set[[dependent]])^2)
+    
+    predicted_train <- predict(model, training_set, allow.new.levels=TRUE)
+    MSE_train <- mean((predicted_train - training_set[[dependent]])^2)
+    
+    performances[fold] <- MSE
+    print (paste0(fold, "  training MSE: ", MSE_train, "  hold out MSE: ", MSE))
+    
+  }
+
+  return (performances)
+
+}
+```
+
+```{r}
+m1 = "human_norm_rating ~  category + norm_shape * norm_spatial"
+result = crossvalidate(train_set, k=5, m=m1, dependent='human_norm_rating')
+print (paste0("Average MSE across all folds: ", mean(result)))
+```
+
+##### Apply the model on the test set and examine MSE
+```{r}
+model1 = lm(m1, train_set)
+predicted = predict(model1, test_set, allow.new.levels=TRUE)
+MSE = mean((predicted - test_set[['human_norm_rating']])^2)
+
+summary(model1)
+MSE
+```
+
+##### Apply the model on tracing images without human ratings
+```{r}
+model1 = lm(m1, rater_data, REML = FALSE) # Apply the model on the full training set
+final_set = mdata[is.na(mdata$human_rating), ]
+predicted = predict(model1, final_set, allow.new.levels=TRUE)
+
+summary(model1)
+```
+
+##### Output the csv file
+```{r}
+final_set$human_norm_rating = predicted
+output = rbind(rater_data, final_set)
+write.csv(output, file = "tracing_eval.csv")
+```

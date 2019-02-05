@@ -1,0 +1,151 @@
+---
+title: "model_result_analysis"
+output: html_document
+---
+
+Just Museumstation Tracing (no photodraw data)
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(groupdata2)
+library(dplyr)
+library(knitr) 
+library(broom) 
+library(hydroGOF) 
+```
+
+Only Tracings: shape + square
+```{r}
+raw = read.csv('museumstation_tracing_eval.csv')
+raw[raw$human_norm_rating==-10.0, 'human_norm_rating'] = NA
+raw[raw$human_rating==-10.0, 'human_rating'] = NA
+raw$has_ref = as.logical(raw$has_ref)
+raw$norm_r = scale(raw$rotate)
+raw$norm_t = scale(raw$translate)
+raw$norm_s = scale(raw$scale)
+raw$spatial = raw$norm_r + raw$norm_t + raw$norm_s
+raw$norm_shape = scale(raw$post_tran)
+raw$norm_spatial = scale(raw$spatial)
+summary(raw)
+```
+```{r}
+d = raw[raw$has_ref==TRUE,]
+copy = raw[raw$has_ref==FALSE,]
+```
+
+#### plot shape error and spatial error
+##### Tracing
+```{r}
+require(gridExtra)
+square = d[d$category == 'square',]
+p_square = ggplot(square, aes(norm_shape, norm_spatial, color=age)) +
+  geom_point(size=1) +
+  theme_bw() +
+  ggtitle('Square Tracing') + 
+  xlab("norm_shape") +
+  ylab("norm_spatial")
+
+shape = d[d$category == 'shape',]
+p_shape = ggplot(shape, aes(norm_shape, norm_spatial, color=age))+
+  geom_point(size=1) +
+  theme_bw() + 
+  ggtitle('Shape Tracing') + 
+  xlab("norm_shape") + 
+  ylab("norm_spatial")
+
+grid.arrange(p_square, p_shape, ncol=2)
+```
+##### Copying
+```{r}
+square = copy[copy$category == 'square',]
+p_square = ggplot(square, aes(norm_shape, norm_spatial, color=age)) +
+  geom_point(size=1) +
+  theme_bw() +
+  ggtitle('Square Copying') + 
+  xlab("norm_shape") +
+  ylab("norm_spatial")
+
+circle = copy[copy$category == 'circle',]
+p_circle = ggplot(circle, aes(norm_shape, norm_spatial, color=age))+
+  geom_point(size=1) +
+  theme_bw() + 
+  ggtitle('Circle Copying') +
+  xlab("norm_shape") + 
+  ylab("norm_spatial")
+
+grid.arrange(p_square, p_circle, ncol=2)
+```
+
+#### correlation
+```{r}
+cor.test(raw$norm_shape, raw$norm_spatial)
+```
+
+##### Tracing: shape + square
+```{r}
+cor.test(d$norm_shape, d$norm_spatial)
+```
+
+##### Copying: square + circle
+```{r}
+cor.test(copy$norm_shape, copy$norm_spatial)
+```
+
+#### Model Fitting (only for tracing)
+For tracing, is norm_shape like some kind of threshold for the norm_spatial?
+
+```{r}
+m1 = lm('norm_spatial ~ norm_shape + category + age', d)
+summary(m1)
+```
+```{r}
+m2 = lm('norm_shape ~ norm_spatial + category + age', d)
+summary(m2)
+```
+
+##### For the rated tracings
+```{r}
+rdata = d[!is.na(d$human_rating),]
+cor.test(rdata$norm_shape, rdata$norm_spatial)
+```
+
+```{r}
+m1 = lm('norm_spatial ~ norm_shape + category + age', rdata)
+summary(m1)
+```
+
+```{r}
+m2 = lm('norm_shape ~ norm_spatial + category + age', rdata)
+summary(m2)
+```
+
+##### plot the change of shape_error and spatial_error as a function of age
+```{r}
+require(gridExtra)
+for (x in c('square', 'shape')){
+  a_shape = ggplot(d[d$category==x,], aes(age, norm_shape, color=norm_spatial))+
+    geom_point(size=1) + 
+    theme_bw() + 
+    xlab("age") + 
+    ylab("norm_shape")
+  
+  a_spatial = ggplot(d[d$category==x,], aes(age, norm_spatial, color=norm_shape)) + 
+    geom_point(size=1) + 
+    theme_bw() + 
+    xlab("age") + 
+    ylab("norm_spatial")
+  grid.arrange(a_shape, a_spatial, ncol=2)
+}
+
+```
+
+pre-transformation shape error vs. spatial error
+```{r}
+p = ggplot(d, aes(pre_tran, norm_spatial, color=age)) + 
+  geom_point(size=1) + 
+  theme_bw() + 
+  xlab('pre-transformation shape error') + 
+  ylab('spatial error')
+print (p)
+```
