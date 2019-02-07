@@ -13,7 +13,6 @@ var
 
 
 // define number of trials to fetch from database (what is length of each recog HIT?)
-var num_trials = 10;
 var gameport;
 var researchers = ['A4SSYO0HDVD4E', 'A1BOIDKD33QSDK'];
 var block_researcher = false;
@@ -22,8 +21,8 @@ if(argv.gameport) {
     gameport = argv.gameport;
     console.log('using port ' + gameport);
 } else {
-    gameport = 8888;
-    console.log('no gameport specified: using 8888\nUse the --gameport flag to change');
+    gameport = 8887;
+    console.log('no gameport specified: using 8887\nUse the --gameport flag to change');
 }
 
 try {
@@ -43,7 +42,6 @@ app.get('/*', (req, res) => {
     // // serve stuff that the client requests
     // serveFile(req, res);
     var id = req.query.workerId;
-    console.log(req.query);
     
     if(!id || id === 'undefined') {
     console.log('id undefined');
@@ -160,7 +158,7 @@ function sendSingleStim(socket, data) {
     sendPostRequest('http://localhost:6002/db/getsinglestim', {
         json: {
             dbname: 'stimuli',
-            colname: 'kiddraw_tracing_eval_dev',
+            colname: 'kiddraw_tracing_eval_square_copy_dev',
             numTrials: 1,
             gameid: data.gameID
         }

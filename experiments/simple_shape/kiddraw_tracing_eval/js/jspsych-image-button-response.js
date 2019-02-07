@@ -199,8 +199,8 @@ jsPsych.plugins["image-button-response"] = (function() {
 	    
         }
 
-        // wait for a little bit for data to come back from db, then show_display
-        setTimeout(function() {show_display(); }, 600);
+        // wait for a little bit for data to come back from db (at least 1500ms), then show_display
+        setTimeout(function() {show_display(); }, 1500);
 
         // store response
         var response = {
@@ -237,7 +237,7 @@ jsPsych.plugins["image-button-response"] = (function() {
             var trial_data = {
                 dbname:'kiddraw',
                 colname: 'tracing_eval',
-                iterationName: 'testing2',
+                iterationName: 'pilot1',
                 reaction_time: response.rt,
                 image_url: trial.image_url,
                 session_id: trial.session_id,
