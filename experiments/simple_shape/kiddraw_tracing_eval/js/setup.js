@@ -1,6 +1,6 @@
 var oldCallback;
 var score = 0;
-var num_trials = 105;
+var num_trials = 105
 var catch_freq = Math.round(num_trials/5);
 console.log(catch_freq);
 
@@ -77,7 +77,7 @@ var goodbyeTrial = {
 // define trial object with boilerplate
 function Trial () {
     this.type = 'image-button-response';
-    this.iterationName = 'pilot0';
+    this.iterationName = 'testing';
     this.dev_mode = false;
     this.prompt = "Please rate how well this tracing matches the reference shape.";
     this.image_url = "img/catch.png";
