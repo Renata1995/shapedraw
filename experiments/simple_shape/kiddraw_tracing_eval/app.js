@@ -21,8 +21,8 @@ if(argv.gameport) {
     gameport = argv.gameport;
     console.log('using port ' + gameport);
 } else {
-    gameport = 8887;
-    console.log('no gameport specified: using 8887\nUse the --gameport flag to change');
+    gameport = 8889;
+    console.log('no gameport specified: using 8889\nUse the --gameport flag to change');
 }
 
 try {
@@ -133,7 +133,7 @@ function checkPreviousParticipant (workerId, callback) {
         projection: {'_id': 1}
     };
     sendPostRequest(
-        'http://localhost:6002/db/exists',
+        'http://localhost:6003/db/exists',
         {json: postData},
         (error, res, body) => {
         try {
@@ -155,7 +155,7 @@ catch (err) {
 
 
 function sendSingleStim(socket, data) {
-    sendPostRequest('http://localhost:6002/db/getsinglestim', {
+    sendPostRequest('http://localhost:6003/db/getsinglestim', {
         json: {
             dbname: 'stimuli',
             colname: 'kiddraw_tracing_eval_square_copy_dev',
@@ -193,7 +193,7 @@ function sendSingleStim(socket, data) {
 
 function writeDataToMongo (data) {
     sendPostRequest(
-        'http://localhost:6002/db/insert',
+        'http://localhost:6003/db/insert',
         { json: data },
         (error, res, body) => {
         if (!error && res.statusCode === 200) {
