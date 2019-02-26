@@ -1,6 +1,6 @@
 var oldCallback;
 var score = 0;
-var num_trials = 105
+var num_trials = 20
 var catch_freq = Math.round(num_trials/5);
 console.log(catch_freq);
 
