@@ -237,7 +237,7 @@ jsPsych.plugins["image-button-response"] = (function() {
             var trial_data = {
                 dbname:'kiddraw',
                 colname: 'tracing_eval',
-                iterationName: 'testing_feb26',
+                iterationName: 'pilot2',
                 reaction_time: response.rt,
                 image_url: trial.image_url,
                 session_id: trial.session_id,
