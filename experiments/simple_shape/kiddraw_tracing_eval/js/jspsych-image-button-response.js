@@ -241,6 +241,7 @@ jsPsych.plugins["image-button-response"] = (function() {
                 reaction_time: response.rt,
                 image_url: trial.image_url,
                 session_id: trial.session_id,
+                task: trial.has_ref?'trace':'copy',
                 button_pressed: response.button,
                 category: trial.category,
                 trialNum: trial.trialNum,
