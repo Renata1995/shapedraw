@@ -1,0 +1,118 @@
+---
+title: "Model Comparison on Tracing Data"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(groupdata2)
+library(dplyr)
+library(knitr) 
+library(broom) 
+library(hydroGOF)
+library(MASS)
+library(DescTools)
+library(broom)
+library(brms)
+library(reshape2)
+library(caret)
+```
+
+#### Preprocessing
+##### Load data and convert types
+```{r}
+mdata = read.csv('tracing_final.csv')
+mdata$category = factor(mdata$category, levels = c('square', 'shape', 'circle'))
+
+mdata$has_ref = as.logical(mdata$has_ref)
+mdata$norm_shape = scale(mdata$post_tran)
+mdata$norm_spatial = scale(mdata$spatial)
+rater_data = mdata[mdata$button_pressed!=-10,]
+rater_data$button_pressed = factor(rater_data$button_pressed, levels = c(0, 1, 2, 3, 4), ordered=TRUE)
+rater_data$norm_button = factor(rater_data$norm_button, levels = c(-3, -2, -1, 0, 1, 2, 3), ordered=TRUE)
+
+trace = rater_data[rater_data$has_ref==TRUE,]
+copy = rater_data[rater_data$has_ref==FALSE,]
+```
+
+##### General distribution of the rating data
+```{r}
+for (t in c('square', 'shape')){
+  for (i in seq(2, 10, by=1) ){
+    sub = subset(trace , category == t & age == i)
+    print (c(t, i, nrow(sub)) )
+  }
+}
+```
+
+#### Overall Model Comparison
+
+##### Raw data + ordinal regression + random effect
+```{r}
+m2 = "button_pressed ~  category + post_tran + translate + scale + rotate + (1|worker_id)"
+ord_wid = brm(m2, data=trace, family=cumulative("probit"))
+summary(ord_wid)
+```
+
+
+##### Make Prediction on data without ratings
+```{r}
+new_data = read.csv('museumstation_pre_pred.csv')
+new_data <- subset(new_data, select = -c(X, Unnamed..0,human_norm_rating))
+new_trace = new_data[new_data$has_ref==TRUE,]
+new_trace$category = factor(new_trace$category, levels=c('square', 'shape'))
+```
+
+```{r}
+new_pred = predict(ord_wid, newdata = new_trace, re_formula = NA)
+pred_df = data.frame(new_pred)
+new_trace$ord_max = apply(pred_df, 1, which.max)
+```
+
+```{r}
+rownames(new_trace) <- 1:nrow(new_trace)
+new_trace$human_rating[new_trace$human_rating != -10] = TRUE
+new_trace$human_rating[new_trace$human_rating == -10] = FALSE
+colnames(new_trace)[colnames(new_trace)=="human_rating"] <- "has_human_rating"
+write.csv(new_trace, file='museumstation_tracing_ord_pred2.csv')
+```
+
+```{r}
+pdata = new_trace
+ptable = prop.table(table(pdata$age, pdata$ord_max), 1)
+df.sorted = arrange(data.frame(ptable), Var1, Var2)
+df_cumsum = ddply(df.sorted, 'Var1', transform, label_ypos=cumsum(Freq))
+
+df_cumsum %>%
+  ggplot(aes(x=Var1, y=Freq, fill=Var2)) + 
+  geom_bar(aes(fill=Var2),  stat='identity', position=position_fill(reverse=TRUE)) +
+  theme_minimal() + 
+  scale_fill_brewer(palette = 'Blues') + 
+  xlab('age') + 
+  ylab('ordinal rating proportion')
+```
+
+```{r}
+unique_sid = unique(trace[c('session_id','category')])
+num_count = 1:nrow(unique_sid)
+
+for(i in 1:nrow(unique_sid)){
+  current = unique_sid[i,]
+  num_count[i] = nrow(trace[trace$session_id==current$session_id & trace$category==current$category, ])
+}
+print (max(num_count))
+print (min(num_count))
+print(length(num_count))
+```
+
+```{r}
+trace_2 = new_trace[new_trace$has_human_rating==1,]
+for (t in c('square', 'shape')){
+  for (i in seq(2, 10, by=1) ){
+    sub = subset(trace_2 , category == t & age == i)
+    print (c(t, i, nrow(sub)) )
+  }
+}
+```
